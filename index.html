@@ -11,7 +11,7 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 #app{max-width:640px;margin:0 auto;padding:20px 16px 48px}
 header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
-.logo{font-size:34px}
+header svg,.logo svg{flex:none}
 h1{margin:0;font-size:22px;line-height:1.2}
 h2{margin:0 0 8px;font-size:16px}
 .mut{color:var(--mut);font-size:14px}
@@ -22,6 +22,7 @@ h2{margin:0 0 8px;font-size:16px}
 button.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
 button.btn.ghost{background:var(--chip);color:var(--ink)}
 button.btn.sm{padding:6px 12px;font-size:14px}
+button.btn.danger{background:#b3261e;color:#fff}
 button.gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
 label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
 input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
@@ -32,7 +33,7 @@ textarea{min-height:140px;resize:vertical}
 .name.off{opacity:.45;cursor:default;text-decoration:line-through}
 .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .row:first-of-type{border-top:0}
-.row .g{flex:1;min-width:0}
+.row .g{flex:1;min-width:0;word-break:break-word}
 .row .gift{font-weight:700;color:var(--ok)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:var(--chip);border-radius:99px;padding:4px 12px;font-size:14px}
@@ -46,18 +47,21 @@ textarea{min-height:140px;resize:vertical}
 .bar{height:8px;background:var(--chip);border-radius:9px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok)}
 .lk{display:flex;gap:8px;margin-bottom:8px}
-.ub{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:10px}
+.ub{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px}
+.ub .r{display:flex;align-items:center;gap:8px}
 .ub img{width:28px;height:28px;border-radius:50%}
 pre{background:var(--chip);padding:12px;border-radius:10px;overflow:auto;font-size:13px}
 a{color:var(--acc)}
+.shake{display:inline-block;animation:shake .35s infinite}
+@keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
-@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script type="module">
-/* ============ CONFIG: i-paste dito ang firebaseConfig ng project mo ============ */
+/* ============ CONFIG: paste your firebaseConfig values here ============ */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyA8ICkJPBSJ5NxN6yRU7KmqeMdBuZqmy2Y",
   authDomain: "bunutan-50e0b.firebaseapp.com",
@@ -65,7 +69,7 @@ const FIREBASE_CONFIG = {
   projectId: "bunutan-50e0b",
   appId: "1:223544414019:web:a7b941182133a47560a9f6"
 };
-/* ================================================================================ */
+/* ======================================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
@@ -85,28 +89,69 @@ const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return nu
 const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="27" width="46" height="31" rx="4" fill="#c8372d"/><rect x="5" y="18" width="54" height="13" rx="3.5" fill="#e4574b"/><rect x="28" y="18" width="8" height="40" fill="#f6c453"/><path d="M32 18C28 6 14 5 15 12c1 6 12 6 17 6z" fill="#f6c453"/><path d="M32 18C36 6 50 5 49 12c-1 6-12 6-17 6z" fill="#f2b233"/><circle cx="32" cy="18" r="3.5" fill="#f6c453"/></svg>';
+{ const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = 'data:image/svg+xml,' + encodeURIComponent(giftSvg(64)); document.head.appendChild(ic); }
 
 /* ---------- state ---------- */
 let user = null, uid = null, authReady = false;
-let sid = null, key = null, ses = null, isAdmin = false, lastJson = '';
-let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false;
+let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraws = null;
+let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false, confirmDel = false;
+let soundOn = ls.get('bunutan_sound') !== 'off';
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
 const myName = () => (user && (user.displayName || user.email)) || 'Google user';
 const baseUrl = () => location.origin + location.pathname;
+const wishItems = p => Object.entries((p && p.wishlist) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (a.at || 0) - (b.at || 0));
+const safeUrl = u => { u = (u || '').trim(); if (!u) return ''; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href.slice(0, 300) : ''; } catch(e){ return ''; } };
 
 /* ---------- database (Firebase Realtime Database REST, with Google ID token) ---------- */
-async function call(method, p, body){
+async function callRaw(method, path, body){
   const t = await auth.currentUser.getIdToken();
-  const r = await fetch(DB_URL + '/bunutan/' + p + '.json?auth=' + encodeURIComponent(t), {method, body: body === undefined ? undefined : JSON.stringify(body)});
+  const r = await fetch(DB_URL + '/' + path + '.json?auth=' + encodeURIComponent(t), {method, body: body === undefined ? undefined : JSON.stringify(body)});
   if (!r.ok) throw new Error('db ' + r.status);
   return r.json();
 }
-const dbGet = p => call('GET', p), dbPut = (p, b) => call('PUT', p, b), dbPatch = (p, b) => call('PATCH', p, b);
+const dbGet = p => callRaw('GET', 'bunutan/' + p), dbPut = (p, b) => callRaw('PUT', 'bunutan/' + p, b), dbPatch = (p, b) => callRaw('PATCH', 'bunutan/' + p, b), dbDel = p => callRaw('DELETE', 'bunutan/' + p);
+const uPath = p => 'bunutan_users/' + uid + '/' + p;
+const mineKey = () => 'bunutan_mine_' + uid;
 
 function readHash(){ const q = new URLSearchParams(location.hash.slice(1)); sid = q.get('s'); key = q.get('k'); }
 function keepInputs(){ const o = {}; root.querySelectorAll('input,textarea').forEach(e => { if (e.id) o[e.id] = e.value; }); return o; }
 function restoreInputs(o){ for (const k in o) { const e = document.getElementById(k); if (e) e.value = o[k]; } }
+
+/* ---------- drum roll (Web Audio, no files needed) ---------- */
+function drumRoll(ms){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const none = {stop(){}};
+  if (!soundOn || !AC) return none;
+  let ctx; try { ctx = new AC(); } catch(e){ return none; }
+  if (ctx.resume) ctx.resume();
+  const sr = ctx.sampleRate, buf = ctx.createBuffer(1, sr * 2, sr), d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const master = ctx.createGain(); master.gain.value = 0.8; master.connect(ctx.destination);
+  const now = ctx.currentTime + 0.05, dur = ms / 1000;
+  const tap = (at, vol) => {
+    const s = ctx.createBufferSource(); s.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500 + Math.random() * 700; bp.Q.value = 0.8;
+    const g = ctx.createGain(); g.gain.setValueAtTime(vol, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.09);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(at, Math.random() * 1.5); s.stop(at + 0.1);
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(190, at); o.frequency.exponentialRampToValueAtTime(110, at + 0.08);
+    const og = ctx.createGain(); og.gain.setValueAtTime(vol * 0.5, at); og.gain.exponentialRampToValueAtTime(0.001, at + 0.1);
+    o.connect(og); og.connect(master); o.start(at); o.stop(at + 0.11);
+  };
+  let t = 0;
+  while (t < dur) { const p = t / dur; tap(now + t, 0.1 + 0.6 * p * p); t += (0.11 - 0.07 * p) * (0.85 + Math.random() * 0.3); }
+  const end = now + dur;
+  const k = ctx.createOscillator(); k.type = 'sine'; k.frequency.setValueAtTime(140, end); k.frequency.exponentialRampToValueAtTime(40, end + 0.35);
+  const kg = ctx.createGain(); kg.gain.setValueAtTime(1, end); kg.gain.exponentialRampToValueAtTime(0.001, end + 0.4);
+  k.connect(kg); kg.connect(master); k.start(end); k.stop(end + 0.45);
+  const c = ctx.createBufferSource(); c.buffer = buf;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4500;
+  const cg = ctx.createGain(); cg.gain.setValueAtTime(0.7, end); cg.gain.exponentialRampToValueAtTime(0.001, end + 1.4);
+  c.connect(hp); hp.connect(cg); cg.connect(master); c.start(end); c.stop(end + 1.5);
+  setTimeout(() => { try { ctx.close(); } catch(e){} }, ms + 2400);
+  return { stop(){ try { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0, ctx.currentTime, 0.03); setTimeout(() => { try { ctx.close(); } catch(e){} }, 300); } catch(e){} } };
+}
 
 /* ---------- auth ---------- */
 async function signIn(){
@@ -114,15 +159,15 @@ async function signIn(){
   try { await signInWithPopup(auth, prov); }
   catch (e) {
     if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') return signInWithRedirect(auth, prov);
-    if (e.code === 'auth/unauthorized-domain') msg = 'Hindi pa naka-authorize ang domain na ito. Idagdag ito sa Firebase → Authentication → Settings → Authorized domains.';
-    else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') msg = 'Hindi nakapag-sign in. Subukan ulit.';
+    if (e.code === 'auth/unauthorized-domain') msg = 'This domain is not authorized yet. Add it in Firebase > Authentication > Settings > Authorized domains.';
+    else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') msg = 'Sign-in failed. Please try again.';
     render();
   }
 }
 
 /* ---------- views ---------- */
 function userBar(){
-  return '<div class="ub">' + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="mut">' + esc(myName()) + '</span><button class="btn ghost sm" data-act="signout">Sign out</button></div>';
+  return '<div class="ub"><div>' + (sid ? '<a href="' + baseUrl() + '">&larr; All draws</a>' : '') + '</div><div class="r">' + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="mut">' + esc(myName()) + '</span><button class="btn ghost sm" data-act="signout">Sign out</button></div></div>';
 }
 
 function render(){
@@ -130,102 +175,129 @@ function render(){
   const keep = keepInputs();
   let h = '';
   if (!CONFIGURED) h = viewGuide();
-  else if (!authReady) h = '<p class="mut center" style="margin-top:80px">Loading…</p>';
+  else if (!authReady) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
   else if (!user) h = viewSignIn();
   else if (!sid) h = userBar() + viewHome();
-  else if (notFound) h = userBar() + '<div class="card center"><div class="logo">🎁</div><h2>Hindi mahanap ang bunutan</h2><p class="mut">Pakisuri ang link, o magtanong sa creator.</p><p><a href="' + baseUrl() + '">Gumawa ng bago</a></p></div>';
-  else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading…</p>';
+  else if (notFound) h = userBar() + '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
+  else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
   else h = userBar() + viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
   root.innerHTML = (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h;
   restoreInputs(keep);
 }
 
 function viewSignIn(){
-  return '<div class="card center" style="margin-top:40px"><div class="logo">🎁</div><h1>Bunutan</h1><p class="mut">Mag-sign in gamit ang Google para makasali o makagawa ng bunutan.</p><p><button class="gbtn" data-act="signin">' + GLOGO + ' Mag-sign in gamit ang Google</button></p></div>';
+  return '<div class="card center" style="margin-top:40px">' + giftSvg(72) + '<h1 style="margin-top:8px">Bunutan</h1><p class="mut">Sign in with Google to join or create a gift draw.</p><p><button class="gbtn" data-act="signin">' + GLOGO + ' Sign in with Google</button></p></div>';
 }
 
 function viewGuide(){
-  return '<header><div class="logo">🛠️</div><div><h1>Isang setup na lang</h1><div class="mut">Kailangan ng libreng Firebase project para sa Google sign-in at shared na listahan.</div></div></header>' +
-  '<div class="card"><ol style="margin:0;padding-left:20px;display:grid;gap:8px"><li>Pumunta sa <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> → <b>Add project</b>.</li>' +
-  '<li><b>Build → Authentication → Get started → Sign-in method → Google → Enable</b>, pumili ng support email, tapos Save.</li>' +
-  '<li><b>Authentication → Settings → Authorized domains → Add domain</b>: ilagay ang <code>iyongpangalan.github.io</code>.</li>' +
-  '<li><b>Build → Realtime Database → Create Database</b> (locked mode). Sa <b>Rules</b> tab, i-paste ito at Publish:<pre>{\n  "rules": {\n    "bunutan": {\n      "$sid": {\n        ".read": "auth != null",\n        ".write": "auth != null"\n      }\n    }\n  }\n}</pre></li>' +
-  '<li>Gear icon → <b>Project settings → Your apps → Web (&lt;/&gt;)</b> → Register app. Kopyahin ang <code>firebaseConfig</code>. Kung wala ang <code>databaseURL</code>, kunin ito sa taas ng Realtime Database → Data tab.</li>' +
-  '<li>Buksan ang <code>index.html</code>, i-paste ang mga value sa <code>FIREBASE_CONFIG</code> sa itaas ng script, tapos i-commit.</li></ol></div>';
+  return '<header>' + giftSvg(40) + '<div><h1>One-time setup</h1><div class="mut">A free Firebase project is needed for Google sign-in and the shared lists.</div></div></header>' +
+  '<div class="card"><ol style="margin:0;padding-left:20px;display:grid;gap:8px"><li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> and click <b>Add project</b>.</li>' +
+  '<li><b>Build &gt; Authentication &gt; Get started &gt; Sign-in method &gt; Google &gt; Enable</b>.</li>' +
+  '<li><b>Authentication &gt; Settings &gt; Authorized domains</b>: add <code>yourname.github.io</code>.</li>' +
+  '<li><b>Build &gt; Realtime Database &gt; Create Database</b>. In the <b>Rules</b> tab, paste this and Publish:<pre>{\n  "rules": {\n    "bunutan": {\n      "$sid": { ".read": "auth != null", ".write": "auth != null" }\n    },\n    "bunutan_users": {\n      "$uid": {\n        ".read": "auth != null &amp;&amp; auth.uid === $uid",\n        ".write": "auth != null &amp;&amp; auth.uid === $uid"\n      }\n    }\n  }\n}</pre></li>' +
+  '<li>Project settings &gt; Your apps &gt; Web: copy the <code>firebaseConfig</code> values (plus the <code>databaseURL</code> from the Realtime Database Data tab) into <code>FIREBASE_CONFIG</code> at the top of <code>index.html</code>.</li></ol></div>';
 }
 
 function viewHome(){
-  let mine = []; try { mine = JSON.parse(ls.get('bunutan_mine') || '[]'); } catch(e){}
-  let h = '<header><div class="logo">🎁</div><div><h1>Gumawa ng Bunutan</h1><div class="mut">Ikaw ang creator. I-set up muna bago i-share ang link.</div></div></header>';
-  if (mine.length) h += '<div class="card"><h2>Mga bunutan mo</h2>' + mine.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b></div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Buksan</a></div>').join('') + '</div>';
-  h += '<div class="card"><label for="t">Pangalan ng event</label><input id="t" placeholder="Hal. Pasko 2026 – Family Bunutan">' +
-  '<label for="d">Petsa ng exchange gift (optional)</label><input id="d" placeholder="Hal. Dec 20, 2026">' +
-  '<label for="b">Budget (optional)</label><input id="b" placeholder="Hal. ₱500">' +
-  '<label for="n">Listahan ng mga kasali (isang pangalan bawat linya, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
-  '<p style="margin:14px 0 0"><button class="btn" data-act="create">Gumawa ng session</button></p></div>';
+  let h = '<header>' + giftSvg(44) + '<div><h1>Bunutan</h1><div class="mut">Create gift draws and share them with your group.</div></div></header>';
+  h += '<div class="card"><h2>Your draws</h2>';
+  if (homeDraws === null) h += '<p class="mut" style="margin:0">Loading...</p>';
+  else if (!homeDraws.length) h += '<p class="mut" style="margin:0">You have not created any draws yet. Create your first one below.</p>';
+  else h += homeDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b>' + (m.createdAt ? '<div class="mut">Created ' + fmt(m.createdAt) + '</div>' : '') + '</div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Open</a></div>').join('');
+  h += '</div><div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
+  '<label for="d">Gift exchange date (optional)</label><input id="d" placeholder="e.g. Dec 20, 2026">' +
+  '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
+  '<label for="n">Participants (one name per line, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
+  '<p style="margin:14px 0 0"><button class="btn" data-act="create">Create draw</button></p></div>';
   return h;
 }
 
 function viewHeader(){
-  const i = info(), bits = [i.date, i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' · ');
-  return '<header><div class="logo">🎁</div><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
+  const i = info(), bits = [i.date, i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
+  return '<header>' + giftSvg(44) + '<div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
 }
 function viewTabs(){
-  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Dashboard ng creator</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">Ako rin sasali</button></div>';
+  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button></div>';
 }
 
 function viewDash(){
   const ps = parts(), total = ps.length, claimed = ps.filter(p => p.claimedBy), drawn = ps.filter(p => p.drewAt);
   const waiting = claimed.filter(p => !p.drewAt), free = ps.filter(p => !p.claimedBy), byId = Object.fromEntries(ps.map(p => [p.id, p]));
-  let h = '<div class="card"><h2>Ipadala sa mga kasali</h2><div class="lk"><input id="pl" readonly value="' + esc(baseUrl() + '#s=' + sid) + '"><button class="btn sm" data-act="copy" data-v="pl">Copy</button></div>' +
-  '<h2 style="margin-top:12px">Admin link mo (sa iyo lang!)</h2><div class="lk"><input id="al" readonly value="' + esc(baseUrl() + '#s=' + sid + '&k=' + key) + '"><button class="btn sm" data-act="copy" data-v="al">Copy</button></div><div class="mut">I-save ang admin link. Ito ang daan mo pabalik sa dashboard.</div></div>';
-  h += '<div class="stats"><div class="stat"><b>' + claimed.length + '/' + total + '</b><span class="mut">Naka-claim</span></div><div class="stat"><b>' + drawn.length + '/' + total + '</b><span class="mut">Nakabunot</span></div><div class="stat"><b>' + free.length + '</b><span class="mut">Libre pa</span></div></div>';
+  let h = '<div class="card"><h2>Send to participants</h2><div class="lk"><input id="pl" readonly value="' + esc(baseUrl() + '#s=' + sid) + '"><button class="btn sm" data-act="copy" data-v="pl">Copy</button></div>' +
+  '<h2 style="margin-top:12px">Your admin link (keep it private)</h2><div class="lk"><input id="al" readonly value="' + esc(baseUrl() + '#s=' + sid + '&k=' + key) + '"><button class="btn sm" data-act="copy" data-v="al">Copy</button></div><div class="mut">This draw is also saved under "All draws" on your account.</div></div>';
+  h += '<div class="stats"><div class="stat"><b>' + claimed.length + '/' + total + '</b><span class="mut">Claimed</span></div><div class="stat"><b>' + drawn.length + '/' + total + '</b><span class="mut">Drawn</span></div><div class="stat"><b>' + free.length + '</b><span class="mut">Unclaimed</span></div></div>';
   h += '<div class="card"><div class="bar"><i style="width:' + (total ? Math.round(drawn.length / total * 100) : 0) + '%"></i></div></div>';
-  h += '<div class="card"><h2>Nakabunot na (' + drawn.length + ')</h2>';
-  if (!drawn.length) h += '<p class="mut" style="margin:0">Wala pa. Nakatago ang nabunot ng bawat isa hangga\'t hindi mo pinipindot ang mata.</p>';
+  h += '<div class="card"><h2>Already drawn (' + drawn.length + ')</h2>';
+  if (!drawn.length) h += '<p class="mut" style="margin:0">Nobody yet. Each pick stays hidden until you press the eye button.</p>';
   drawn.sort((a, b) => a.drewAt - b.drewAt).forEach(p => {
     const g = byId[p.giftee];
-    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' · ' : '') + 'Nakabunot: ' + fmt(p.drewAt) + '</div></div><div class="gift">' + (shown[p.id] ? '→ ' + esc(g ? g.name : '?') : '→ ••••••') + '</div><button class="eye" data-act="eye" data-v="' + p.id + '" aria-label="Show or hide">' + (shown[p.id] ? EYEOFF : EYE) + '</button></div>';
+    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Drew ' + fmt(p.drewAt) + '</div></div><div class="gift">' + (shown[p.id] ? '&rarr; ' + esc(g ? g.name : '?') : '&rarr; ******') + '</div><button class="eye" data-act="eye" data-v="' + p.id + '" aria-label="Show or hide pick">' + (shown[p.id] ? EYEOFF : EYE) + '</button></div>';
   });
-  h += '</div><div class="card"><h2>Naka-claim pero hindi pa nakabunot (' + waiting.length + ')</h2>';
-  if (!waiting.length) h += '<p class="mut" style="margin:0">Wala.</p>';
-  else h += '<p class="mut" style="margin:0 0 4px">Kung nagkamali ng pangalan ang kasali o iba ang Google account na ginamit, i-release ang pangalan para ma-claim ulit. Hindi na ito pwede kapag nakabunot na.</p>';
-  waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' · ' : '') + 'Na-claim: ' + fmt(p.claimedAt) + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">I-release</button></div>'; });
-  h += '</div><div class="card"><h2>Hindi pa na-claim (' + free.length + ')</h2>' + (free.length ? '<div class="chips">' + free.map(p => '<span class="chip">' + esc(p.name) + '</span>').join('') + '</div>' : '<p class="mut" style="margin:0">Na-claim na lahat.</p>') + '</div>';
-  h += '<div class="card"><h2>Magdagdag ng kasali</h2><div class="lk"><input id="addn" placeholder="Pangalan"><button class="btn" data-act="add">Add</button></div></div>';
+  h += '</div><div class="card"><h2>Claimed, not drawn yet (' + waiting.length + ')</h2>';
+  if (!waiting.length) h += '<p class="mut" style="margin:0">None.</p>';
+  else h += '<p class="mut" style="margin:0 0 4px">If someone picked the wrong name or used the wrong Google account, release the name so it can be claimed again. This is not possible after they have drawn.</p>';
+  waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Claimed ' + fmt(p.claimedAt) + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">Release</button></div>'; });
+  h += '</div><div class="card"><h2>Not claimed yet (' + free.length + ')</h2>' + (free.length ? '<div class="chips">' + free.map(p => '<span class="chip">' + esc(p.name) + '</span>').join('') + '</div>' : '<p class="mut" style="margin:0">Every name has been claimed.</p>') + '</div>';
+  h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
+  h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
+  return h;
+}
+
+function viewWishEditor(me){
+  const items = wishItems(me);
+  let h = '<div class="card"><h2>My wishlist</h2><p class="mut" style="margin:0 0 8px">Add gift ideas. The person who draws your name will see this list.</p>';
+  if (!items.length) h += '<p class="mut" style="margin:0 0 8px">Nothing here yet.</p>';
+  items.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div><button class="btn ghost sm" data-act="wdel" data-v="' + w.id + '">Remove</button></div>'; });
+  h += '<label for="wt">Gift idea</label><input id="wt" maxlength="120" placeholder="e.g. Scented candle, size M hoodie, coffee beans">' +
+  '<label for="wu">Link (optional)</label><input id="wu" maxlength="300" placeholder="https://...">' +
+  '<p style="margin:12px 0 0"><button class="btn" data-act="wadd">Add to wishlist</button></p></div>';
   return h;
 }
 
 function viewMe(){
   const ps = parts(), me = ps.find(p => p.claimedBy === uid);
   if (!me) {
-    let h = '<div class="card"><h2>Sino ka sa listahan?</h2><p class="mut" style="margin:0 0 12px">Naka-sign in ka bilang <b>' + esc(myName()) + '</b>. Piliin ang pangalan mo sa listahan. Isang beses lang ito pwedeng i-claim, at mananatili itong naka-link sa Google account mo.</p><div class="names">';
+    let h = '<div class="card"><h2>Who are you on the list?</h2><p class="mut" style="margin:0 0 12px">You are signed in as <b>' + esc(myName()) + '</b>. Pick your name from the list. A name can only be claimed once and stays linked to your Google account.</p><div class="names">';
     ps.forEach(p => { h += '<button class="name ' + (p.claimedBy ? 'off' : (pending === p.id ? 'sel' : '')) + '" ' + (p.claimedBy ? 'disabled' : 'data-act="pick" data-v="' + p.id + '"') + '>' + esc(p.name) + '</button>'; });
     h += '</div>';
     const pp = pending && ps.find(x => x.id === pending);
-    if (pp) h += '<p style="margin:16px 0 0">Ikaw ba si <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn" data-act="claim">Oo, ako \'to</button> <button class="btn ghost" data-act="unpick">Hindi</button></p>';
+    if (pp) h += '<p style="margin:16px 0 0">Are you <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn" data-act="claim">Yes, that\'s me</button> <button class="btn ghost" data-act="unpick">No</button></p>';
     return h + '</div>';
   }
-  if (!me.drewAt) return '<div class="card center"><p class="mut" style="margin:0">Hi,</p><div class="big" style="color:var(--ink)">' + esc(me.name) + '!</div><p class="mut">Handa ka na bang bumunot? Hindi na ito mauulit kapag nabunot mo na.</p><p><button class="btn" data-act="draw" style="font-size:18px;padding:14px 28px">🎲 Bumunot na</button></p></div>';
-  const g = ps.find(p => p.id === me.giftee);
-  return '<div class="card center"><p class="mut" style="margin:0">Ireregalo mo kay</p><div class="big">' + esc(g ? g.name : '?') + '</div><p class="mut" style="margin:0">Naka-save na ito. Mag-sign in lang ulit gamit ang parehong Google account para makita ito anumang oras. 🤫</p></div>';
+  if (!me.drewAt) {
+    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn" data-act="draw" style="font-size:18px;padding:14px 28px">Draw a name</button></p><p style="margin:0"><button class="btn ghost sm" data-act="sound">Drum roll: ' + (soundOn ? 'On' : 'Off') + '</button></p></div>' + viewWishEditor(me);
+  }
+  const g = ps.find(p => p.id === me.giftee), gw = wishItems(g);
+  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="big">' + esc(g ? g.name : '?') + '</div><p class="mut" style="margin:0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
+  h += '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
+  if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
+  gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div></div>'; });
+  return h + '</div>' + viewWishEditor(me);
 }
 
 /* ---------- actions ---------- */
+async function loadHome(){
+  let list = []; try { list = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+  try { const d = await callRaw('GET', uPath('draws')); if (d) Object.entries(d).forEach(([s, v]) => { if (!list.some(x => x.sid === s)) list.push({sid: s, key: v.key, title: v.title, createdAt: v.createdAt}); }); } catch(e){}
+  homeDraws = list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  render();
+}
+
 async function createSession(){
   const title = ($('#t').value || '').trim();
   const names = [...new Set(($('#n').value || '').split('\n').map(s => s.trim()).filter(Boolean))];
-  if (!title) { msg = 'Lagyan ng pangalan ang event.'; return render(); }
-  if (names.length < 3) { msg = 'Kailangan ng kahit 3 magkakaibang pangalan.'; return render(); }
+  if (!title) { msg = 'Please enter an event name.'; return render(); }
+  if (names.length < 3) { msg = 'Please enter at least 3 different names.'; return render(); }
   busy = true; msg = '';
   try {
-    const s = rnd(10), k = rnd(16), p = {};
+    const s = rnd(10), k = rnd(16), p = {}, createdAt = Date.now();
     names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
-    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), createdAt: Date.now(), adminHash: await sha(k), owner: uid}, p});
-    let mine = []; try { mine = JSON.parse(ls.get('bunutan_mine') || '[]'); } catch(e){}
-    mine.unshift({sid: s, key: k, title}); ls.set('bunutan_mine', JSON.stringify(mine.slice(0, 20)));
+    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), createdAt, adminHash: await sha(k), owner: uid}, p});
+    let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+    mine.unshift({sid: s, key: k, title, createdAt}); ls.set(mineKey(), JSON.stringify(mine.slice(0, 50)));
+    try { await callRaw('PUT', uPath('draws/' + s), {title, key: k, createdAt}); } catch(e){}
     busy = false; location.hash = 's=' + s + '&k=' + k; return;
-  } catch (e) { msg = 'Hindi na-save. Pakisuri ang databaseURL at Rules, tapos subukan ulit.'; }
+  } catch (e) { msg = 'Could not save. Check the databaseURL and Rules, then try again.'; }
   busy = false; render();
 }
 
@@ -240,59 +312,100 @@ async function claim(){
     const chk = await dbGet(sid + '/p/' + pid);
     if (!chk || chk.claimedBy !== uid) throw new Error('taken');
     msg = '';
-  } catch (e) { msg = e.message === 'taken' ? 'Naku, may nag-claim na ng pangalang iyon. Pumili ng iba.' : 'Hindi na-save. Subukan ulit.'; }
+  } catch (e) { msg = e.message === 'taken' ? 'Sorry, someone just claimed that name. Please pick another.' : 'Could not save. Please try again.'; }
   pending = null; await load(true);
+}
+
+async function performDraw(meId){
+  const raw = await dbGet(sid + '/p') || {};
+  const list = Object.entries(raw).map(([id, v]) => Object.assign({id}, v));
+  const m = list.find(p => p.id === meId);
+  if (m.drewAt) return;
+  let picked = list.find(p => p.takenBy === uid);   /* resume if a previous attempt was interrupted */
+  if (!picked) {
+    const givers = list.filter(p => !p.drewAt && p.id !== m.id);
+    const pool = list.filter(p => p.id !== m.id && !p.takenBy).filter(c => {
+      const rr = list.filter(p => !p.takenBy && p.id !== c.id);
+      return !(givers.length === 1 && rr.length === 1 && givers[0].id === rr[0].id);
+    }).sort(() => Math.random() - .5);
+    for (const c of pool) {
+      const cur = await dbGet(sid + '/p/' + c.id);
+      if (cur && cur.takenBy) continue;
+      await dbPatch(sid + '/p/' + c.id, {takenBy: uid});
+      await sleep(300);
+      const chk = await dbGet(sid + '/p/' + c.id);
+      if (chk && chk.takenBy === uid) { picked = c; break; }
+    }
+  }
+  if (!picked) throw new Error('empty');
+  await dbPatch(sid + '/p/' + m.id, {giftee: picked.id, drewAt: Date.now()});
 }
 
 async function draw(){
   const me = parts().find(p => p.claimedBy === uid);
   if (!me || me.drewAt) return;
   busy = true; msg = '';
+  const dur = 5000 + Math.random() * 5000;           /* 5 to 10 seconds */
+  const roll = drumRoll(dur);                          /* started inside the click, so audio is allowed */
   const names = parts().filter(p => p.id !== me.id).map(p => p.name);
-  const iv = setInterval(() => { root.innerHTML = '<div class="card center"><p class="mut" style="margin:0">Bumubunot…</p><div class="big spin">' + esc(names[Math.floor(Math.random() * names.length)] || '…') + '</div></div>'; }, 90);
-  try {
-    await sleep(1600);
-    const raw = await dbGet(sid + '/p') || {};
-    const list = Object.entries(raw).map(([id, v]) => Object.assign({id}, v));
-    const m = list.find(p => p.id === me.id);
-    if (!m.drewAt) {
-      let picked = list.find(p => p.takenBy === uid);   /* tuloy kung naputol dati */
-      if (!picked) {
-        const givers = list.filter(p => !p.drewAt && p.id !== m.id);
-        const pool = list.filter(p => p.id !== m.id && !p.takenBy).filter(c => {
-          const rr = list.filter(p => !p.takenBy && p.id !== c.id);
-          return !(givers.length === 1 && rr.length === 1 && givers[0].id === rr[0].id);
-        }).sort(() => Math.random() - .5);
-        for (const c of pool) {
-          const cur = await dbGet(sid + '/p/' + c.id);
-          if (cur && cur.takenBy) continue;
-          await dbPatch(sid + '/p/' + c.id, {takenBy: uid});
-          await sleep(300);
-          const chk = await dbGet(sid + '/p/' + c.id);
-          if (chk && chk.takenBy === uid) { picked = c; break; }
-        }
-      }
-      if (!picked) throw new Error('empty');
-      await dbPatch(sid + '/p/' + m.id, {giftee: picked.id, drewAt: Date.now()});
-    }
-  } catch (e) { msg = e.message === 'empty' ? 'Walang available na mabubunot ngayon. Sabihan ang creator.' : 'Hindi na-save ang bunot. Subukan ulit.'; }
-  clearInterval(iv); busy = false; await load(true);
+  root.innerHTML = '<div class="card center"><div class="shake">' + giftSvg(72) + '</div><p class="mut" style="margin:8px 0 0">Drawing... listen to the drum roll</p><div class="big spin" id="shuf">...</div><div class="bar"><i id="prog" style="width:0"></i></div></div>';
+  let err = null;
+  const work = performDraw(me.id).catch(e => { err = e; });
+  const t0 = Date.now();
+  const iv = setInterval(() => {
+    const s = $('#shuf'), p = $('#prog');
+    if (s) s.textContent = names[Math.floor(Math.random() * names.length)] || '...';
+    if (p) p.style.width = Math.min(100, (Date.now() - t0) / dur * 100) + '%';
+  }, 80);
+  while (Date.now() - t0 < dur && !err) await sleep(100);
+  clearInterval(iv);
+  if (err) roll.stop();
+  await work;
+  if (err) msg = err.message === 'empty' ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.';
+  busy = false; await load(true);
 }
 
 async function release(pid){
   try {
     const cur = await dbGet(sid + '/p/' + pid);
-    if (!cur || cur.drewAt) msg = 'Hindi na pwedeng i-release ang nakabunot na.';
+    if (!cur || cur.drewAt) msg = 'This person has already drawn, so the name cannot be released.';
     else { await dbPatch(sid + '/p/' + pid, {claimedBy: null, claimedName: null, claimedAt: null}); msg = ''; }
-  } catch (e) { msg = 'Hindi na-release. Subukan ulit.'; }
+  } catch (e) { msg = 'Could not release the name. Please try again.'; }
   await load(true);
 }
 
 async function addName(){
   const v = ($('#addn').value || '').trim(); if (!v) return;
-  if (parts().some(p => p.name.toLowerCase() === v.toLowerCase())) { msg = 'Nandiyan na ang pangalang iyon.'; return render(); }
+  if (parts().some(p => p.name.toLowerCase() === v.toLowerCase())) { msg = 'That name is already on the list.'; return render(); }
   const n = parts().reduce((m, p) => Math.max(m, parseInt(p.id.slice(1)) || 0), 0) + 1;
-  try { await dbPut(sid + '/p/p' + n, {name: v}); $('#addn').value = ''; msg = ''; } catch (e) { msg = 'Hindi na-add. Subukan ulit.'; }
+  try { await dbPut(sid + '/p/p' + n, {name: v}); $('#addn').value = ''; msg = ''; } catch (e) { msg = 'Could not add the name. Please try again.'; }
+  await load(true);
+}
+
+async function deleteDraw(){
+  try {
+    await dbDel(sid);
+    try { await callRaw('DELETE', uPath('draws/' + sid)); } catch(e){}
+    let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+    ls.set(mineKey(), JSON.stringify(mine.filter(m => m.sid !== sid)));
+    confirmDel = false; location.href = baseUrl(); return;
+  } catch (e) { msg = 'Could not delete the draw. Please try again.'; }
+  confirmDel = false; render();
+}
+
+async function addWish(){
+  const me = parts().find(p => p.claimedBy === uid); if (!me) return;
+  const t = ($('#wt').value || '').trim().slice(0, 120);
+  if (!t) { msg = 'Please describe the gift idea first.'; return render(); }
+  if (wishItems(me).length >= 20) { msg = 'Your wishlist is full (20 items). Remove one to add another.'; return render(); }
+  const id = 'w' + Date.now().toString(36) + rnd(3);
+  try { await dbPut(sid + '/p/' + me.id + '/wishlist/' + id, {t, u: safeUrl($('#wu').value), at: Date.now()}); $('#wt').value = ''; $('#wu').value = ''; msg = ''; }
+  catch (e) { msg = 'Could not save. Please try again.'; }
+  await load(true);
+}
+async function delWish(id){
+  const me = parts().find(p => p.claimedBy === uid); if (!me) return;
+  try { await dbDel(sid + '/p/' + me.id + '/wishlist/' + id); msg = ''; } catch (e) { msg = 'Could not remove the item. Please try again.'; }
   await load(true);
 }
 
@@ -300,7 +413,7 @@ function copy(id){
   const el = document.getElementById(id); if (!el) return;
   el.select();
   (navigator.clipboard ? navigator.clipboard.writeText(el.value) : Promise.reject()).catch(() => { try { document.execCommand('copy'); } catch(e){} });
-  msg = 'Na-copy!'; render(); setTimeout(() => { msg = ''; render(); }, 1500);
+  msg = 'Copied!'; render(); setTimeout(() => { msg = ''; render(); }, 1500);
 }
 
 root.addEventListener('click', e => {
@@ -314,10 +427,16 @@ root.addEventListener('click', e => {
   else if (a === 'unpick') { pending = null; render(); }
   else if (a === 'claim') claim();
   else if (a === 'draw') draw();
+  else if (a === 'sound') { soundOn = !soundOn; ls.set('bunutan_sound', soundOn ? 'on' : 'off'); render(); }
   else if (a === 'eye') { shown[v] = !shown[v]; render(); }
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
   else if (a === 'copy') copy(v);
+  else if (a === 'wadd') addWish();
+  else if (a === 'wdel') delWish(v);
+  else if (a === 'delask') { confirmDel = true; render(); }
+  else if (a === 'delno') { confirmDel = false; render(); }
+  else if (a === 'delyes') deleteDraw();
 });
 
 /* ---------- load + poll ---------- */
@@ -332,18 +451,19 @@ async function load(force){
     lastJson = j; ses = d; loaded = true;
     isAdmin = !!key && (await sha(key)) === d.info.adminHash;
     render();
-  } catch (e) { if (!loaded) { msg = 'Hindi maabot ang database. Pakisuri ang databaseURL, Rules, at internet.'; loaded = true; ses = null; notFound = true; render(); } }
+  } catch (e) { if (!loaded) { msg = 'Cannot reach the database. Check the databaseURL, Rules, and your connection.'; loaded = true; ses = null; notFound = true; render(); } }
 }
 
 function boot(){
-  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = '';
-  render(); load(true);
+  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null;
+  render();
+  if (user && sid) load(true); else if (user) loadHome();
 }
 
 if (CONFIGURED) {
   onAuthStateChanged(auth, u => { user = u; uid = u ? u.uid : null; authReady = true; boot(); });
   window.addEventListener('hashchange', boot);
-  setInterval(() => { if (user && !busy && !document.hidden && !document.activeElement?.matches?.('input,textarea')) load(false); }, 4000);
+  setInterval(() => { if (user && sid && !busy && !document.hidden && !document.activeElement?.matches?.('input,textarea')) load(false); }, 4000);
 } else render();
 </script>
 </body>
