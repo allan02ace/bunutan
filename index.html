@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bunutan</title>
+<style>
+:root{--bg:#fbf7f2;--card:#fff;--ink:#2a2118;--mut:#7a6b5d;--line:#eadfd3;--acc:#c8372d;--acc-ink:#fff;--ok:#1f7a55;--chip:#f3ebe1}
+@media (prefers-color-scheme:dark){:root{--bg:#1b1612;--card:#251e18;--ink:#f3ebe1;--mut:#a89888;--line:#3a3028;--acc:#ef6a5e;--acc-ink:#1b1612;--ok:#4fc08d;--chip:#30271f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.logo{font-size:34px}
+h1{margin:0;font-size:22px;line-height:1.2}
+h2{margin:0 0 8px;font-size:16px}
+.mut{color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.tab.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+button.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
+button.btn.ghost{background:var(--chip);color:var(--ink)}
+button.btn.sm{padding:6px 12px;font-size:14px}
+button.gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
+label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
+input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:140px;resize:vertical}
+.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.name{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.name.sel{border-color:var(--acc);outline:2px solid var(--acc)}
+.name.off{opacity:.45;cursor:default;text-decoration:line-through}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .g{flex:1;min-width:0}
+.row .gift{font-weight:700;color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--chip);border-radius:99px;padding:4px 12px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:24px}
+.big{font-size:34px;font-weight:800;text-align:center;margin:10px 0;color:var(--acc);word-break:break-word}
+.center{text-align:center}
+.eye{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;border-radius:8px;display:flex}
+.msg{background:var(--chip);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.bar{height:8px;background:var(--chip);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok)}
+.lk{display:flex;gap:8px;margin-bottom:8px}
+.ub{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:10px}
+.ub img{width:28px;height:28px;border-radius:50%}
+pre{background:var(--chip);padding:12px;border-radius:10px;overflow:auto;font-size:13px}
+a{color:var(--acc)}
+.spin{animation:pulse .25s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+/* ============ CONFIG: i-paste dito ang firebaseConfig ng project mo ============ */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",   // hal. "https://bunutan-12345-default-rtdb.asia-southeast1.firebasedatabase.app"
+  projectId: "",
+  appId: ""
+};
+/* ================================================================================ */
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+const CONFIGURED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+const DB_URL = (FIREBASE_CONFIG.databaseURL || '').replace(/\/$/, '');
+const auth = CONFIGURED ? getAuth(initializeApp(FIREBASE_CONFIG)) : null;
+
+const $ = s => document.querySelector(s);
+const root = $('#app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = t => t ? new Date(t).toLocaleString([], {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) : '';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rnd = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => (b % 36).toString(36)).join(''); };
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))), b => b.toString(16).padStart(2, '0')).join('');
+const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} } };
+const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
+const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+
+/* ---------- state ---------- */
+let user = null, uid = null, authReady = false;
+let sid = null, key = null, ses = null, isAdmin = false, lastJson = '';
+let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false;
+const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
+const info = () => ses && ses.info;
+const myName = () => (user && (user.displayName || user.email)) || 'Google user';
+const baseUrl = () => location.origin + location.pathname;
+
+/* ---------- database (Firebase Realtime Database REST, with Google ID token) ---------- */
+async function call(method, p, body){
+  const t = await auth.currentUser.getIdToken();
+  const r = await fetch(DB_URL + '/bunutan/' + p + '.json?auth=' + encodeURIComponent(t), {method, body: body === undefined ? undefined : JSON.stringify(body)});
+  if (!r.ok) throw new Error('db ' + r.status);
+  return r.json();
+}
+const dbGet = p => call('GET', p), dbPut = (p, b) => call('PUT', p, b), dbPatch = (p, b) => call('PATCH', p, b);
+
+function readHash(){ const q = new URLSearchParams(location.hash.slice(1)); sid = q.get('s'); key = q.get('k'); }
+function keepInputs(){ const o = {}; root.querySelectorAll('input,textarea').forEach(e => { if (e.id) o[e.id] = e.value; }); return o; }
+function restoreInputs(o){ for (const k in o) { const e = document.getElementById(k); if (e) e.value = o[k]; } }
+
+/* ---------- auth ---------- */
+async function signIn(){
+  const prov = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, prov); }
+  catch (e) {
+    if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') return signInWithRedirect(auth, prov);
+    if (e.code === 'auth/unauthorized-domain') msg = 'Hindi pa naka-authorize ang domain na ito. Idagdag ito sa Firebase → Authentication → Settings → Authorized domains.';
+    else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') msg = 'Hindi nakapag-sign in. Subukan ulit.';
+    render();
+  }
+}
+
+/* ---------- views ---------- */
+function userBar(){
+  return '<div class="ub">' + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="mut">' + esc(myName()) + '</span><button class="btn ghost sm" data-act="signout">Sign out</button></div>';
+}
+
+function render(){
+  if (busy) return;
+  const keep = keepInputs();
+  let h = '';
+  if (!CONFIGURED) h = viewGuide();
+  else if (!authReady) h = '<p class="mut center" style="margin-top:80px">Loading…</p>';
+  else if (!user) h = viewSignIn();
+  else if (!sid) h = userBar() + viewHome();
+  else if (notFound) h = userBar() + '<div class="card center"><div class="logo">🎁</div><h2>Hindi mahanap ang bunutan</h2><p class="mut">Pakisuri ang link, o magtanong sa creator.</p><p><a href="' + baseUrl() + '">Gumawa ng bago</a></p></div>';
+  else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading…</p>';
+  else h = userBar() + viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
+  root.innerHTML = (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h;
+  restoreInputs(keep);
+}
+
+function viewSignIn(){
+  return '<div class="card center" style="margin-top:40px"><div class="logo">🎁</div><h1>Bunutan</h1><p class="mut">Mag-sign in gamit ang Google para makasali o makagawa ng bunutan.</p><p><button class="gbtn" data-act="signin">' + GLOGO + ' Mag-sign in gamit ang Google</button></p></div>';
+}
+
+function viewGuide(){
+  return '<header><div class="logo">🛠️</div><div><h1>Isang setup na lang</h1><div class="mut">Kailangan ng libreng Firebase project para sa Google sign-in at shared na listahan.</div></div></header>' +
+  '<div class="card"><ol style="margin:0;padding-left:20px;display:grid;gap:8px"><li>Pumunta sa <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> → <b>Add project</b>.</li>' +
+  '<li><b>Build → Authentication → Get started → Sign-in method → Google → Enable</b>, pumili ng support email, tapos Save.</li>' +
+  '<li><b>Authentication → Settings → Authorized domains → Add domain</b>: ilagay ang <code>iyongpangalan.github.io</code>.</li>' +
+  '<li><b>Build → Realtime Database → Create Database</b> (locked mode). Sa <b>Rules</b> tab, i-paste ito at Publish:<pre>{\n  "rules": {\n    "bunutan": {\n      "$sid": {\n        ".read": "auth != null",\n        ".write": "auth != null"\n      }\n    }\n  }\n}</pre></li>' +
+  '<li>Gear icon → <b>Project settings → Your apps → Web (&lt;/&gt;)</b> → Register app. Kopyahin ang <code>firebaseConfig</code>. Kung wala ang <code>databaseURL</code>, kunin ito sa taas ng Realtime Database → Data tab.</li>' +
+  '<li>Buksan ang <code>index.html</code>, i-paste ang mga value sa <code>FIREBASE_CONFIG</code> sa itaas ng script, tapos i-commit.</li></ol></div>';
+}
+
+function viewHome(){
+  let mine = []; try { mine = JSON.parse(ls.get('bunutan_mine') || '[]'); } catch(e){}
+  let h = '<header><div class="logo">🎁</div><div><h1>Gumawa ng Bunutan</h1><div class="mut">Ikaw ang creator. I-set up muna bago i-share ang link.</div></div></header>';
+  if (mine.length) h += '<div class="card"><h2>Mga bunutan mo</h2>' + mine.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b></div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Buksan</a></div>').join('') + '</div>';
+  h += '<div class="card"><label for="t">Pangalan ng event</label><input id="t" placeholder="Hal. Pasko 2026 – Family Bunutan">' +
+  '<label for="d">Petsa ng exchange gift (optional)</label><input id="d" placeholder="Hal. Dec 20, 2026">' +
+  '<label for="b">Budget (optional)</label><input id="b" placeholder="Hal. ₱500">' +
+  '<label for="n">Listahan ng mga kasali (isang pangalan bawat linya, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
+  '<p style="margin:14px 0 0"><button class="btn" data-act="create">Gumawa ng session</button></p></div>';
+  return h;
+}
+
+function viewHeader(){
+  const i = info(), bits = [i.date, i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' · ');
+  return '<header><div class="logo">🎁</div><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
+}
+function viewTabs(){
+  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Dashboard ng creator</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">Ako rin sasali</button></div>';
+}
+
+function viewDash(){
+  const ps = parts(), total = ps.length, claimed = ps.filter(p => p.claimedBy), drawn = ps.filter(p => p.drewAt);
+  const waiting = claimed.filter(p => !p.drewAt), free = ps.filter(p => !p.claimedBy), byId = Object.fromEntries(ps.map(p => [p.id, p]));
+  let h = '<div class="card"><h2>Ipadala sa mga kasali</h2><div class="lk"><input id="pl" readonly value="' + esc(baseUrl() + '#s=' + sid) + '"><button class="btn sm" data-act="copy" data-v="pl">Copy</button></div>' +
+  '<h2 style="margin-top:12px">Admin link mo (sa iyo lang!)</h2><div class="lk"><input id="al" readonly value="' + esc(baseUrl() + '#s=' + sid + '&k=' + key) + '"><button class="btn sm" data-act="copy" data-v="al">Copy</button></div><div class="mut">I-save ang admin link. Ito ang daan mo pabalik sa dashboard.</div></div>';
+  h += '<div class="stats"><div class="stat"><b>' + claimed.length + '/' + total + '</b><span class="mut">Naka-claim</span></div><div class="stat"><b>' + drawn.length + '/' + total + '</b><span class="mut">Nakabunot</span></div><div class="stat"><b>' + free.length + '</b><span class="mut">Libre pa</span></div></div>';
+  h += '<div class="card"><div class="bar"><i style="width:' + (total ? Math.round(drawn.length / total * 100) : 0) + '%"></i></div></div>';
+  h += '<div class="card"><h2>Nakabunot na (' + drawn.length + ')</h2>';
+  if (!drawn.length) h += '<p class="mut" style="margin:0">Wala pa. Nakatago ang nabunot ng bawat isa hangga\'t hindi mo pinipindot ang mata.</p>';
+  drawn.sort((a, b) => a.drewAt - b.drewAt).forEach(p => {
+    const g = byId[p.giftee];
+    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' · ' : '') + 'Nakabunot: ' + fmt(p.drewAt) + '</div></div><div class="gift">' + (shown[p.id] ? '→ ' + esc(g ? g.name : '?') : '→ ••••••') + '</div><button class="eye" data-act="eye" data-v="' + p.id + '" aria-label="Show or hide">' + (shown[p.id] ? EYEOFF : EYE) + '</button></div>';
+  });
+  h += '</div><div class="card"><h2>Naka-claim pero hindi pa nakabunot (' + waiting.length + ')</h2>';
+  if (!waiting.length) h += '<p class="mut" style="margin:0">Wala.</p>';
+  else h += '<p class="mut" style="margin:0 0 4px">Kung nagkamali ng pangalan ang kasali o iba ang Google account na ginamit, i-release ang pangalan para ma-claim ulit. Hindi na ito pwede kapag nakabunot na.</p>';
+  waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' · ' : '') + 'Na-claim: ' + fmt(p.claimedAt) + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">I-release</button></div>'; });
+  h += '</div><div class="card"><h2>Hindi pa na-claim (' + free.length + ')</h2>' + (free.length ? '<div class="chips">' + free.map(p => '<span class="chip">' + esc(p.name) + '</span>').join('') + '</div>' : '<p class="mut" style="margin:0">Na-claim na lahat.</p>') + '</div>';
+  h += '<div class="card"><h2>Magdagdag ng kasali</h2><div class="lk"><input id="addn" placeholder="Pangalan"><button class="btn" data-act="add">Add</button></div></div>';
+  return h;
+}
+
+function viewMe(){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid);
+  if (!me) {
+    let h = '<div class="card"><h2>Sino ka sa listahan?</h2><p class="mut" style="margin:0 0 12px">Naka-sign in ka bilang <b>' + esc(myName()) + '</b>. Piliin ang pangalan mo sa listahan. Isang beses lang ito pwedeng i-claim, at mananatili itong naka-link sa Google account mo.</p><div class="names">';
+    ps.forEach(p => { h += '<button class="name ' + (p.claimedBy ? 'off' : (pending === p.id ? 'sel' : '')) + '" ' + (p.claimedBy ? 'disabled' : 'data-act="pick" data-v="' + p.id + '"') + '>' + esc(p.name) + '</button>'; });
+    h += '</div>';
+    const pp = pending && ps.find(x => x.id === pending);
+    if (pp) h += '<p style="margin:16px 0 0">Ikaw ba si <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn" data-act="claim">Oo, ako \'to</button> <button class="btn ghost" data-act="unpick">Hindi</button></p>';
+    return h + '</div>';
+  }
+  if (!me.drewAt) return '<div class="card center"><p class="mut" style="margin:0">Hi,</p><div class="big" style="color:var(--ink)">' + esc(me.name) + '!</div><p class="mut">Handa ka na bang bumunot? Hindi na ito mauulit kapag nabunot mo na.</p><p><button class="btn" data-act="draw" style="font-size:18px;padding:14px 28px">🎲 Bumunot na</button></p></div>';
+  const g = ps.find(p => p.id === me.giftee);
+  return '<div class="card center"><p class="mut" style="margin:0">Ireregalo mo kay</p><div class="big">' + esc(g ? g.name : '?') + '</div><p class="mut" style="margin:0">Naka-save na ito. Mag-sign in lang ulit gamit ang parehong Google account para makita ito anumang oras. 🤫</p></div>';
+}
+
+/* ---------- actions ---------- */
+async function createSession(){
+  const title = ($('#t').value || '').trim();
+  const names = [...new Set(($('#n').value || '').split('\n').map(s => s.trim()).filter(Boolean))];
+  if (!title) { msg = 'Lagyan ng pangalan ang event.'; return render(); }
+  if (names.length < 3) { msg = 'Kailangan ng kahit 3 magkakaibang pangalan.'; return render(); }
+  busy = true; msg = '';
+  try {
+    const s = rnd(10), k = rnd(16), p = {};
+    names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
+    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), createdAt: Date.now(), adminHash: await sha(k), owner: uid}, p});
+    let mine = []; try { mine = JSON.parse(ls.get('bunutan_mine') || '[]'); } catch(e){}
+    mine.unshift({sid: s, key: k, title}); ls.set('bunutan_mine', JSON.stringify(mine.slice(0, 20)));
+    busy = false; location.hash = 's=' + s + '&k=' + k; return;
+  } catch (e) { msg = 'Hindi na-save. Pakisuri ang databaseURL at Rules, tapos subukan ulit.'; }
+  busy = false; render();
+}
+
+async function claim(){
+  const pid = pending; if (!pid) return;
+  try {
+    const fresh = await dbGet(sid + '/p') || {};
+    if (Object.values(fresh).some(p => p.claimedBy === uid)) { pending = null; return load(true); }
+    if (!fresh[pid] || fresh[pid].claimedBy) throw new Error('taken');
+    await dbPatch(sid + '/p/' + pid, {claimedBy: uid, claimedName: myName(), claimedAt: Date.now()});
+    await sleep(300);
+    const chk = await dbGet(sid + '/p/' + pid);
+    if (!chk || chk.claimedBy !== uid) throw new Error('taken');
+    msg = '';
+  } catch (e) { msg = e.message === 'taken' ? 'Naku, may nag-claim na ng pangalang iyon. Pumili ng iba.' : 'Hindi na-save. Subukan ulit.'; }
+  pending = null; await load(true);
+}
+
+async function draw(){
+  const me = parts().find(p => p.claimedBy === uid);
+  if (!me || me.drewAt) return;
+  busy = true; msg = '';
+  const names = parts().filter(p => p.id !== me.id).map(p => p.name);
+  const iv = setInterval(() => { root.innerHTML = '<div class="card center"><p class="mut" style="margin:0">Bumubunot…</p><div class="big spin">' + esc(names[Math.floor(Math.random() * names.length)] || '…') + '</div></div>'; }, 90);
+  try {
+    await sleep(1600);
+    const raw = await dbGet(sid + '/p') || {};
+    const list = Object.entries(raw).map(([id, v]) => Object.assign({id}, v));
+    const m = list.find(p => p.id === me.id);
+    if (!m.drewAt) {
+      let picked = list.find(p => p.takenBy === uid);   /* tuloy kung naputol dati */
+      if (!picked) {
+        const givers = list.filter(p => !p.drewAt && p.id !== m.id);
+        const pool = list.filter(p => p.id !== m.id && !p.takenBy).filter(c => {
+          const rr = list.filter(p => !p.takenBy && p.id !== c.id);
+          return !(givers.length === 1 && rr.length === 1 && givers[0].id === rr[0].id);
+        }).sort(() => Math.random() - .5);
+        for (const c of pool) {
+          const cur = await dbGet(sid + '/p/' + c.id);
+          if (cur && cur.takenBy) continue;
+          await dbPatch(sid + '/p/' + c.id, {takenBy: uid});
+          await sleep(300);
+          const chk = await dbGet(sid + '/p/' + c.id);
+          if (chk && chk.takenBy === uid) { picked = c; break; }
+        }
+      }
+      if (!picked) throw new Error('empty');
+      await dbPatch(sid + '/p/' + m.id, {giftee: picked.id, drewAt: Date.now()});
+    }
+  } catch (e) { msg = e.message === 'empty' ? 'Walang available na mabubunot ngayon. Sabihan ang creator.' : 'Hindi na-save ang bunot. Subukan ulit.'; }
+  clearInterval(iv); busy = false; await load(true);
+}
+
+async function release(pid){
+  try {
+    const cur = await dbGet(sid + '/p/' + pid);
+    if (!cur || cur.drewAt) msg = 'Hindi na pwedeng i-release ang nakabunot na.';
+    else { await dbPatch(sid + '/p/' + pid, {claimedBy: null, claimedName: null, claimedAt: null}); msg = ''; }
+  } catch (e) { msg = 'Hindi na-release. Subukan ulit.'; }
+  await load(true);
+}
+
+async function addName(){
+  const v = ($('#addn').value || '').trim(); if (!v) return;
+  if (parts().some(p => p.name.toLowerCase() === v.toLowerCase())) { msg = 'Nandiyan na ang pangalang iyon.'; return render(); }
+  const n = parts().reduce((m, p) => Math.max(m, parseInt(p.id.slice(1)) || 0), 0) + 1;
+  try { await dbPut(sid + '/p/p' + n, {name: v}); $('#addn').value = ''; msg = ''; } catch (e) { msg = 'Hindi na-add. Subukan ulit.'; }
+  await load(true);
+}
+
+function copy(id){
+  const el = document.getElementById(id); if (!el) return;
+  el.select();
+  (navigator.clipboard ? navigator.clipboard.writeText(el.value) : Promise.reject()).catch(() => { try { document.execCommand('copy'); } catch(e){} });
+  msg = 'Na-copy!'; render(); setTimeout(() => { msg = ''; render(); }, 1500);
+}
+
+root.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, v = b.dataset.v;
+  if (a === 'tab') { tab = v; msg = ''; render(); }
+  else if (a === 'signin') signIn();
+  else if (a === 'signout') signOut(auth);
+  else if (a === 'create') createSession();
+  else if (a === 'pick') { pending = v; render(); }
+  else if (a === 'unpick') { pending = null; render(); }
+  else if (a === 'claim') claim();
+  else if (a === 'draw') draw();
+  else if (a === 'eye') { shown[v] = !shown[v]; render(); }
+  else if (a === 'release') release(v);
+  else if (a === 'add') addName();
+  else if (a === 'copy') copy(v);
+});
+
+/* ---------- load + poll ---------- */
+async function load(force){
+  if (!CONFIGURED || !user || !sid) return;
+  try {
+    const d = await dbGet(sid);
+    if (!d || !d.info) { notFound = true; loaded = true; return render(); }
+    notFound = false;
+    const j = JSON.stringify(d);
+    if (!force && j === lastJson && loaded) return;
+    lastJson = j; ses = d; loaded = true;
+    isAdmin = !!key && (await sha(key)) === d.info.adminHash;
+    render();
+  } catch (e) { if (!loaded) { msg = 'Hindi maabot ang database. Pakisuri ang databaseURL, Rules, at internet.'; loaded = true; ses = null; notFound = true; render(); } }
+}
+
+function boot(){
+  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = '';
+  render(); load(true);
+}
+
+if (CONFIGURED) {
+  onAuthStateChanged(auth, u => { user = u; uid = u ? u.uid : null; authReady = true; boot(); });
+  window.addEventListener('hashchange', boot);
+  setInterval(() => { if (user && !busy && !document.hidden && !document.activeElement?.matches?.('input,textarea')) load(false); }, 4000);
+} else render();
+</script>
+</body>
+</html>
