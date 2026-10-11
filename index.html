@@ -4,60 +4,87 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bunutan</title>
-<meta name="theme-color" content="#294221">
+<meta name="theme-color" content="#1b3a2f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f7f2e6;--card:#fffdf8;--ink:#22301b;--mut:#6e6a4b;--line:#e4d9b8;--acc:#B42D1A;--acc-ink:#fff;--link:#B42D1A;--ok:#385025;--chip:#eee5c8;--tab:#294221;--tab-ink:#f3e9c4;--stripe:linear-gradient(90deg,#294221,#385025 38%,#C6B173 50%,#891515 62%,#B42D1A)}
-@media (prefers-color-scheme:dark){:root{--bg:#14200f;--card:#1e3118;--ink:#f2ead0;--mut:#b4ab86;--line:#34502b;--acc:#c4361f;--acc-ink:#fff;--link:#e58a73;--ok:#C6B173;--chip:#2a4422;--tab:#C6B173;--tab-ink:#1f2f19;--stripe:linear-gradient(90deg,#385025,#C6B173 50%,#B42D1A)}}
+:root{--ink:#f4f1e6;--mut:#b9c8c0;--line:rgba(255,255,255,.17);--card:rgba(71,95,89,.5);--field:rgba(0,0,0,.24);--chip:rgba(255,255,255,.1);--gold:#d7c27f;--red:#B42D1A;--serif:"Cormorant Garamond","Playfair Display",Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
 *{box-sizing:border-box}
-body::before{content:"";display:block;height:6px;background:var(--stripe)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-#app{max-width:640px;margin:0 auto;padding:20px 16px 48px}
-header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
-header svg,.logo svg{flex:none}
-h1{margin:0;font-size:22px;line-height:1.2}
-h2{margin:0 0 8px;font-size:16px}
+html{background:#112419}
+body{margin:0;color:var(--ink);font:16px/1.55 var(--sans);min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='900'%20viewBox='0%200%20900%20900'%3E%3Cdefs%3E%0A%3Cg%20id='sf'%20fill='none'%3E%3Cpath%20transform='rotate(0)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(60)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(120)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(180)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(240)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(300)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3C/g%3E%0A%3Cg%20id='tr'%3E%3Cpath%20d='M0-60L38-8H-38Z'/%3E%3Cpath%20d='M0-30L48%2028H-48Z'/%3E%3Cpath%20d='M0%200L58%2060H-58Z'/%3E%3Crect%20x='-9'%20y='60'%20width='18'%20height='22'/%3E%3Cpolygon%20points='0.0,-16.0%204.1,-5.7%2015.2,-4.9%206.7,2.2%209.4,12.9%200.0,7.0%20-9.4,12.9%20-6.7,2.2%20-15.2,-4.9%20-4.1,-5.7'%20transform='translate(0%20-76)'/%3E%3C/g%3E%0A%3Cg%20id='bb'%3E%3Crect%20x='-8'%20y='-44'%20width='16'%20height='11'/%3E%3Ccircle%20r='34'/%3E%3Cpath%20d='M-31-12Q0%206%2031-12M-31%2012Q0%2030%2031%2012'%20fill='none'/%3E%3Cpath%20d='M0-44C0-60%2014-60%2014-70'%20fill='none'/%3E%3C/g%3E%0A%3Cg%20id='ho'%3E%3Cpath%20d='M0%200C20-30%2055-30%2072%200C55%2030%2020%2030%200%200Z'%20transform='rotate(-28)'/%3E%3Cpath%20d='M0%200C20-30%2055-30%2072%200C55%2030%2020%2030%200%200Z'%20transform='rotate(28)'/%3E%3Ccircle%20cx='-4'%20cy='2'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3Ccircle%20cx='9'%20cy='-6'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3Ccircle%20cx='9'%20cy='10'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3C/g%3E%0A%3Cg%20id='cc'%20fill='none'%20stroke-width='14'%3E%3Cpath%20d='M0%2080V-18A24%2024%200%200%201%2048-18'/%3E%3Cpath%20d='M0%2080V-18A24%2024%200%200%201%2048-18'%20stroke='%23e0543c'%20stroke-opacity='.22'%20stroke-dasharray='11%2013'/%3E%3C/g%3E%0A%3Cpolygon%20id='st'%20points='0.0,-22.0%205.3,-7.3%2020.9,-6.8%208.6,2.8%2012.9,17.8%200.0,9.0%20-12.9,17.8%20-8.6,2.8%20-20.9,-6.8%20-5.3,-7.3'/%3E%0A%3C/defs%3E%3Cg%20fill='%23fff'%20fill-opacity='.035'%20stroke='%23fff'%20stroke-opacity='.07'%20stroke-width='3'%20stroke-linejoin='round'%20stroke-linecap='round'%3E%3Cuse%20href='%23sf'%20transform='translate(120%20120)%20rotate(0)%20scale(1.3)'/%3E%3Cuse%20href='%23sf'%20transform='translate(640%20170)%20rotate(15)%20scale(1.0)'/%3E%3Cuse%20href='%23sf'%20transform='translate(410%20610)%20rotate(0)%20scale(1.5)'/%3E%3Cuse%20href='%23sf'%20transform='translate(830%20730)%20rotate(30)%20scale(0.9)'/%3E%3Cuse%20href='%23sf'%20transform='translate(150%20690)%20rotate(10)%20scale(0.8)'/%3E%3Cuse%20href='%23sf'%20transform='translate(520%20400)%20rotate(20)%20scale(0.6)'/%3E%3Cuse%20href='%23tr'%20transform='translate(330%20260)%20rotate(-8)%20scale(1.2)'/%3E%3Cuse%20href='%23tr'%20transform='translate(700%20500)%20rotate(6)%20scale(1.1)'/%3E%3Cuse%20href='%23bb'%20transform='translate(500%20110)%20rotate(0)%20scale(1.0)'/%3E%3Cuse%20href='%23bb'%20transform='translate(90%20520)%20rotate(-10)%20scale(0.8)'/%3E%3Cuse%20href='%23bb'%20transform='translate(860%20880)%20rotate(0)%20scale(0.7)'/%3E%3Cuse%20href='%23ho'%20transform='translate(40%20330)%20rotate(-20)%20scale(1.0)'/%3E%3Cuse%20href='%23ho'%20transform='translate(570%20800)%20rotate(200)%20scale(1.0)'/%3E%3Cuse%20href='%23ho'%20transform='translate(780%20300)%20rotate(-150)%20scale(0.8)'/%3E%3Cuse%20href='%23cc'%20transform='translate(240%20500)%20rotate(15)%20scale(1.0)'/%3E%3Cuse%20href='%23cc'%20transform='translate(800%2070)%20rotate(-15)%20scale(0.8)'/%3E%3Cuse%20href='%23cc'%20transform='translate(640%20650)%20rotate(-12)%20scale(0.7)'/%3E%3Cuse%20href='%23st'%20transform='translate(470%20300)%20rotate(10)%20scale(1.0)'/%3E%3Cuse%20href='%23st'%20transform='translate(70%20870)%20rotate(0)%20scale(0.9)'/%3E%3Cuse%20href='%23st'%20transform='translate(230%2090)%20rotate(-12)%20scale(0.7)'/%3E%3Cuse%20href='%23st'%20transform='translate(780%20610)%20rotate(8)%20scale(0.8)'/%3E%3Ccircle%20cx='251'%20cy='320'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='748'%20cy='415'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='168'%20cy='102'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='30'%20cy='421'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='306'%20cy='829'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='237'%20cy='542'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='378'%20cy='293'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='856'%20cy='118'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='229'%20cy='36'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='836'%20cy='276'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='208'%20cy='178'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='306'%20cy='652'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='885'%20cy='878'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='98'%20cy='875'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='355'%20cy='697'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='528'%20cy='264'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='263'%20cy='494'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='101'%20cy='847'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='870'%20cy='317'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='308'%20cy='596'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='329'%20cy='878'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='209'%20cy='433'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='623'%20cy='305'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='472'%20cy='175'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='322'%20cy='275'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='93'%20cy='57'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='651'%20cy='297'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='557'%20cy='673'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='727'%20cy='361'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='699'%20cy='210'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='432'%20cy='217'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='657'%20cy='461'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='198'%20cy='374'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='774'%20cy='612'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='659'%20cy='581'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='341'%20cy='113'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='735'%20cy='244'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='793'%20cy='606'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='253'%20cy='135'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='191'%20cy='307'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='36'%20cy='53'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='724'%20cy='94'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='762'%20cy='701'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='28'%20cy='340'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='339'%20cy='166'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3C/g%3E%3C/svg%3E") 0 0/900px 900px,radial-gradient(900px 600px at 15% -5%,#2a5543,transparent 65%),linear-gradient(#1b3a2f,#0f2218)}
+#app{max-width:680px;margin:0 auto;padding:0 20px 56px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 0 18px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none}
+.brand svg{flex:none}
+.brand b{display:block;font-size:13px;letter-spacing:.42em;text-transform:uppercase;font-weight:600;line-height:1.25}
+.brand small{display:block;font-size:8px;letter-spacing:.34em;text-transform:uppercase;color:var(--mut)}
+.nav .r{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.nav img{width:26px;height:26px;border-radius:50%}
+.nl{font:700 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+.nl:hover{color:var(--gold)}
+h1{font:500 clamp(34px,7vw,46px)/1.05 var(--serif);margin:0}
+h2{margin:0 0 10px;font:700 11.5px/1.3 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+header{margin:14px 0 22px}
+header .mut{margin-top:6px;letter-spacing:.08em;text-transform:uppercase;font-size:11.5px}
 .mut{color:var(--mut);font-size:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
-.tabs{display:flex;gap:6px;margin-bottom:14px}
-.tab{flex:1;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
-.tab.on{background:var(--tab);color:var(--tab-ink);border-color:var(--tab)}
-button.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
-button.btn.ghost{background:var(--chip);color:var(--ink)}
-button.btn.sm{padding:6px 12px;font-size:14px}
-button.btn.danger{background:#891515;color:#fff}
-button.gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
-label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
-input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.card{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:20px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:13px 8px;border:1px solid var(--line);background:transparent;color:var(--mut);font:700 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;border-radius:2px;cursor:pointer}
+.tab.on{background:#efe7d0;color:#17301f;border-color:#efe7d0}
+button.btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:2px;padding:15px 28px;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+button.btn:hover{background:rgba(255,255,255,.12)}
+button.btn.fill{background:#efe7d0;border-color:#efe7d0;color:#17301f}
+button.btn.fill:hover{background:#fff}
+button.btn.ghost{border-color:var(--line);color:rgba(255,255,255,.82)}
+button.btn.sm{padding:10px 14px;font-size:10.5px}
+button.btn.danger{background:#891515;border-color:#891515;color:#fff}
+label{display:block;font:700 10.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:16px 0 6px;color:var(--mut)}
+input,textarea{width:100%;padding:12px 13px;border-radius:2px;border:1px solid rgba(255,255,255,.2);background:var(--field);color:var(--ink);font:inherit}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
+input:focus,textarea:focus{outline:none;border-color:rgba(255,255,255,.65)}
 textarea{min-height:140px;resize:vertical}
 .names{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-.name{padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;text-align:left}
-.name.sel{border-color:var(--acc);outline:2px solid var(--acc)}
-.name.off{opacity:.45;cursor:default;text-decoration:line-through}
-.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.name{padding:14px 12px;border-radius:2px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.name:hover{border-color:rgba(255,255,255,.5)}
+.name.sel{border-color:var(--gold);outline:1px solid var(--gold)}
+.name.off{opacity:.4;cursor:default;text-decoration:line-through}
+.row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
 .row:first-of-type{border-top:0}
 .row .g{flex:1;min-width:0;word-break:break-word}
-.row .gift{font-weight:700;color:var(--ok)}
+.row .gift{font-weight:700;color:var(--gold)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{background:var(--chip);border-radius:99px;padding:4px 12px;font-size:14px}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:2px;padding:4px 12px;font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
-.stat b{display:block;font-size:24px}
-.big{font-size:34px;font-weight:800;text-align:center;margin:10px 0;color:var(--link);word-break:break-word}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:14px 8px;text-align:center}
+.stat b{display:block;font:500 34px/1.1 var(--serif)}
+.stat .mut{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.big{font:500 clamp(40px,10vw,58px)/1.05 var(--serif);text-align:center;margin:10px 0;color:var(--gold);word-break:break-word}
 .center{text-align:center}
-.eye{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;border-radius:8px;display:flex}
-.msg{background:var(--chip);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
-.bar{height:8px;background:var(--chip);border-radius:9px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--ok)}
+.eye{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;border-radius:2px;display:flex}
+.eye:hover{color:var(--ink)}
+.msg{background:rgba(0,0,0,.28);border-left:3px solid var(--gold);padding:12px 14px;margin-bottom:14px;font-size:14px}
+.bar{height:6px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold)}
 .lk{display:flex;gap:8px;margin-bottom:8px}
-.ub{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:10px}
-.ub .r{display:flex;align-items:center;gap:8px}
-.ub img{width:28px;height:28px;border-radius:50%}
-pre{background:var(--chip);padding:12px;border-radius:10px;overflow:auto;font-size:13px}
-a{color:var(--link)}
+pre{background:rgba(0,0,0,.3);padding:12px;border-radius:2px;overflow:auto;font-size:13px}
+a{color:var(--gold)}
+.hero{position:relative;margin:22px 0 8px;min-height:440px}
+.hero .panel{position:absolute;left:11%;right:0;top:0;bottom:0;background:rgba(71,95,89,.66);border:1px solid rgba(255,255,255,.06)}
+.hero .txt{position:relative;padding:52px 18px 48px 4%}
+.hero h1{font-size:clamp(46px,13vw,80px);line-height:1}
+.hero p{max-width:30ch;margin:22px 0 30px;color:#dfe8e3}
+.hero .gicon{margin-right:12px;vertical-align:-5px}
+.chat{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px}
+.bub{max-width:84%;align-self:flex-start;padding:9px 12px;border:1px solid var(--line);background:rgba(0,0,0,.22);border-radius:2px;word-break:break-word;font-size:15px}
+.bub.me{align-self:flex-end;background:#efe7d0;color:#17301f;border-color:#efe7d0}
+.bl{font:700 9.5px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:3px}
 .shake{display:inline-block;animation:shake .35s infinite}
 @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
 @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+@media (max-width:520px){.nl.nm{display:none}}
 </style>
 </head>
 <body>
@@ -91,17 +118,16 @@ const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return nu
 const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
-let gid = 0;
-const giftBody = i => '<defs><linearGradient id="' + i + 'b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B42D1A"/><stop offset="1" stop-color="#891515"/></linearGradient><linearGradient id="' + i + 'l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cc3f2a"/><stop offset="1" stop-color="#B42D1A"/></linearGradient><linearGradient id="' + i + 'r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dccb92"/><stop offset="1" stop-color="#C6B173"/></linearGradient></defs>' + '<rect x="10" y="28" width="44" height="29" rx="3.5" fill="url(#' + i + 'b)"/><rect x="10" y="31" width="44" height="3" fill="#000" opacity=".15"/><rect x="6" y="20" width="52" height="12" rx="3.5" fill="url(#' + i + 'l)"/><rect x="9" y="22" width="46" height="2" rx="1" fill="#fff" opacity=".22"/><rect x="28" y="20" width="8" height="37" rx="1" fill="url(#' + i + 'r)"/><rect x="28" y="20" width="3" height="37" fill="#fff" opacity=".25"/><path d="M32 20C28 8 13 6 14.5 14.5 15.8 21 26 20.5 32 20z" fill="url(#' + i + 'r)"/><path d="M32 20C36 8 51 6 49.5 14.5 48.2 21 38 20.5 32 20z" fill="#b9a35f"/><path d="M30.5 19C26 11.5 19.5 10.5 18.5 13.5" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".45"/><rect x="27.5" y="16.5" width="9" height="7" rx="3" fill="#d6c488" stroke="#9c8442" stroke-width=".8" stroke-opacity=".6"/>';
-const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' + giftBody('g' + (++gid)) + '</svg>';
-const faviconSvg = () => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#294221"/><g transform="translate(8 9) scale(.75)">' + giftBody('f') + '</g></svg>';
+const giftBody = sw => '<g fill="none" stroke="#d7c27f" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="29" width="44" height="28" rx="2.5"/><rect x="6" y="20" width="52" height="9" rx="2.5"/><path d="M29 20V57M35 20V57"/><path d="M32 20C28 7 13 6 14.5 13.5 15.8 19.5 26 20 32 20z"/><path d="M32 20C36 7 51 6 49.5 13.5 48.2 19.5 38 20 32 20z"/></g>';
+const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' + giftBody(2) + '</svg>';
+const faviconSvg = () => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1b3a2f"/><g transform="translate(8 9) scale(.75)">' + giftBody(3.4) + '</g></svg>';
 { const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = 'data:image/svg+xml,' + encodeURIComponent(faviconSvg()); document.head.appendChild(ic); }
 
 /* ---------- state ---------- */
 let user = null, uid = null, authReady = false;
 let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraws = null;
 let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false, confirmDel = false;
-let soundOn = ls.get('bunutan_sound') !== 'off';
+const soundOn = true;
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
 const myName = () => (user && (user.displayName || user.email)) || 'Google user';
@@ -171,8 +197,10 @@ async function signIn(){
 }
 
 /* ---------- views ---------- */
-function userBar(){
-  return '<div class="ub"><div>' + (sid ? '<a href="' + baseUrl() + '">&larr; All draws</a>' : '') + '</div><div class="r">' + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="mut">' + esc(myName()) + '</span><button class="btn ghost sm" data-act="signout">Sign out</button></div></div>';
+function nav(){
+  let r = '';
+  if (user) r = (sid ? '<a class="nl" href="' + baseUrl() + '">All draws</a>' : '') + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="nl nm">' + esc(myName()) + '</span><button class="nl" data-act="signout">Sign out</button>';
+  return '<nav class="nav"><a class="brand" href="' + baseUrl() + '">' + giftSvg(30) + '<span><b>Bunutan</b><small>Gift draw</small></span></a><div class="r">' + r + '</div></nav>';
 }
 
 function render(){
@@ -182,20 +210,21 @@ function render(){
   if (!CONFIGURED) h = viewGuide();
   else if (!authReady) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
   else if (!user) h = viewSignIn();
-  else if (!sid) h = userBar() + viewHome();
-  else if (notFound) h = userBar() + '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
+  else if (!sid) h = viewHome();
+  else if (notFound) h = '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
   else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
-  else h = userBar() + viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
-  root.innerHTML = (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h;
+  else h = viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
+  root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h;
   restoreInputs(keep);
+  root.querySelectorAll('.chat').forEach(c => { c.scrollTop = c.scrollHeight; });
 }
 
 function viewSignIn(){
-  return '<div class="card center" style="margin-top:40px">' + giftSvg(72) + '<h1 style="margin-top:8px">Bunutan</h1><p class="mut">Sign in with Google to join or create a gift draw.</p><p><button class="gbtn" data-act="signin">' + GLOGO + ' Sign in with Google</button></p></div>';
+  return '<div class="hero"><div class="panel"></div><div class="txt"><h1>Draw<br>a Name,<br>Give a Gift</h1><p>Sign in with Google to join a gift draw or create one for your group.</p><button class="btn" data-act="signin"><span class="gicon">' + GLOGO + '</span>Sign in with Google</button></div></div>';
 }
 
 function viewGuide(){
-  return '<header>' + giftSvg(40) + '<div><h1>One-time setup</h1><div class="mut">A free Firebase project is needed for Google sign-in and the shared lists.</div></div></header>' +
+  return '<header><div><h1>One-time setup</h1><div class="mut">A free Firebase project is needed for Google sign-in and the shared lists.</div></div></header>' +
   '<div class="card"><ol style="margin:0;padding-left:20px;display:grid;gap:8px"><li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> and click <b>Add project</b>.</li>' +
   '<li><b>Build &gt; Authentication &gt; Get started &gt; Sign-in method &gt; Google &gt; Enable</b>.</li>' +
   '<li><b>Authentication &gt; Settings &gt; Authorized domains</b>: add <code>yourname.github.io</code>.</li>' +
@@ -204,7 +233,7 @@ function viewGuide(){
 }
 
 function viewHome(){
-  let h = '<header>' + giftSvg(44) + '<div><h1>Bunutan</h1><div class="mut">Create gift draws and share them with your group.</div></div></header>';
+  let h = '<header><div><h1>Your Gift Draws</h1><div class="mut">Create a draw and share it with your group</div></div></header>';
   h += '<div class="card"><h2>Your draws</h2>';
   if (homeDraws === null) h += '<p class="mut" style="margin:0">Loading...</p>';
   else if (!homeDraws.length) h += '<p class="mut" style="margin:0">You have not created any draws yet. Create your first one below.</p>';
@@ -213,13 +242,13 @@ function viewHome(){
   '<label for="d">Gift exchange date (optional)</label><input id="d" placeholder="e.g. Dec 20, 2026">' +
   '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
   '<label for="n">Participants (one name per line, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
-  '<p style="margin:14px 0 0"><button class="btn" data-act="create">Create draw</button></p></div>';
+  '<p style="margin:14px 0 0"><button class="btn fill" data-act="create">Create draw</button></p></div>';
   return h;
 }
 
 function viewHeader(){
   const i = info(), bits = [i.date, i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
-  return '<header>' + giftSvg(44) + '<div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
+  return '<header><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
 }
 function viewTabs(){
   return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button></div>';
@@ -255,7 +284,7 @@ function viewWishEditor(me){
   items.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div><button class="btn ghost sm" data-act="wdel" data-v="' + w.id + '">Remove</button></div>'; });
   h += '<label for="wt">Gift idea</label><input id="wt" maxlength="120" placeholder="e.g. Scented candle, size M hoodie, coffee beans">' +
   '<label for="wu">Link (optional)</label><input id="wu" maxlength="300" placeholder="https://...">' +
-  '<p style="margin:12px 0 0"><button class="btn" data-act="wadd">Add to wishlist</button></p></div>';
+  '<p style="margin:12px 0 0"><button class="btn fill" data-act="wadd">Add to wishlist</button></p></div>';
   return h;
 }
 
@@ -266,18 +295,52 @@ function viewMe(){
     ps.forEach(p => { h += '<button class="name ' + (p.claimedBy ? 'off' : (pending === p.id ? 'sel' : '')) + '" ' + (p.claimedBy ? 'disabled' : 'data-act="pick" data-v="' + p.id + '"') + '>' + esc(p.name) + '</button>'; });
     h += '</div>';
     const pp = pending && ps.find(x => x.id === pending);
-    if (pp) h += '<p style="margin:16px 0 0">Are you <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn" data-act="claim">Yes, that\'s me</button> <button class="btn ghost" data-act="unpick">No</button></p>';
+    if (pp) h += '<p style="margin:16px 0 0">Are you <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn fill" data-act="claim">Yes, that\'s me</button> <button class="btn ghost" data-act="unpick">No</button></p>';
     return h + '</div>';
   }
   if (!me.drewAt) {
-    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn" data-act="draw" style="font-size:18px;padding:14px 28px">Draw a name</button></p><p style="margin:0"><button class="btn ghost sm" data-act="sound">Drum roll: ' + (soundOn ? 'On' : 'Off') + '</button></p></div>' + viewWishEditor(me);
+    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn fill" data-act="draw" style="padding:17px 34px">Draw a name</button></p></div>' + viewChats(me, ps) + viewWishEditor(me);
   }
   const g = ps.find(p => p.id === me.giftee), gw = wishItems(g);
   let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="big">' + esc(g ? g.name : '?') + '</div><p class="mut" style="margin:0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
   h += '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
   gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div></div>'; });
-  return h + '</div>' + viewWishEditor(me);
+  return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
+}
+
+/* ---------- anonymous chat ---------- */
+const chatMsgs = key => Object.entries((((ses && ses.chat) || {})[key]) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (a.at || 0) - (b.at || 0));
+function bubbles(role, ms, other){
+  const mine = role === 'g' ? 'giver' : 'giftee';
+  if (!ms.length) return '<p class="mut" style="margin:0">No messages yet. Say hello!</p>';
+  return ms.map(m => { const me = m.from === mine; return '<div class="bub' + (me ? ' me' : '') + '"><div class="bl">' + (me ? 'You' : esc(other)) + ' &middot; ' + fmt(m.at) + '</div>' + esc(m.t) + '</div>'; }).join('');
+}
+function chatCard(role, ms, title, hint, other){
+  return '<div class="card"><h2>' + title + '</h2><p class="mut" style="margin:0 0 10px">' + hint + '</p><div class="chat" id="cl-' + role + '">' + bubbles(role, ms, other) + '</div><div class="lk" style="margin-top:12px"><input id="cm' + role + '" maxlength="300" placeholder="Write a message..." autocomplete="off"><button class="btn sm" data-act="csend" data-v="' + role + '">Send</button></div></div>';
+}
+function viewChats(me, ps){
+  let h = '';
+  if (me.drewAt) { const g = ps.find(p => p.id === me.giftee), gn = g ? g.name : 'your person'; h += chatCard('g', chatMsgs(me.giftee), 'Chat with ' + esc(gn), 'Your messages show up as "Your Secret Santa", so they will not know it\'s you.', gn); }
+  h += chatCard('r', chatMsgs(me.id), 'Chat with your Secret Santa', 'Message with your "Secret Santa" here.', 'Your Secret Santa');
+  return h;
+}
+function refreshChats(){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return;
+  const g = $('#cl-g'), r = $('#cl-r');
+  if (g && me.drewAt) { const gt = ps.find(p => p.id === me.giftee); g.innerHTML = bubbles('g', chatMsgs(me.giftee), gt ? gt.name : 'your person'); g.scrollTop = g.scrollHeight; }
+  if (r) { r.innerHTML = bubbles('r', chatMsgs(me.id), 'Your Secret Santa'); r.scrollTop = r.scrollHeight; }
+}
+async function sendChat(role){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return;
+  const inp = $('#cm' + role), t = ((inp && inp.value) || '').trim().slice(0, 300); if (!t) return;
+  let key, from;
+  if (role === 'g') { if (!me.drewAt) return; key = me.giftee; from = 'giver'; }
+  else { key = me.id; from = 'giftee'; }
+  try { await dbPut(sid + '/chat/' + key + '/m' + Date.now().toString(36) + rnd(3), {from, t, at: Date.now()}); inp.value = ''; msg = ''; }
+  catch (e) { msg = 'Could not send your message. Please try again.'; }
+  await load(true);
+  const again = $('#cm' + role); if (again) again.focus();
 }
 
 /* ---------- actions ---------- */
@@ -346,6 +409,12 @@ async function performDraw(meId){
   await dbPatch(sid + '/p/' + m.id, {giftee: picked.id, drewAt: Date.now()});
 }
 
+const DRAW_QUOTES = [
+  "Keep your friends close, and your enemies closer.",
+  "Lord, kahit sino, huwag lang siya.",
+  "Walang personalan, bunutan lang.",
+  "May the bunot be with you."
+];
 async function draw(){
   const me = parts().find(p => p.claimedBy === uid);
   if (!me || me.drewAt) return;
@@ -353,7 +422,7 @@ async function draw(){
   const dur = 5000 + Math.random() * 5000;           /* 5 to 10 seconds */
   const roll = drumRoll(dur);                          /* started inside the click, so audio is allowed */
   const names = parts().filter(p => p.id !== me.id).map(p => p.name);
-  root.innerHTML = '<div class="card center"><div class="shake">' + giftSvg(72) + '</div><p class="mut" style="margin:8px 0 0">Drawing... listen to the drum roll</p><div class="big spin" id="shuf">...</div><div class="bar"><i id="prog" style="width:0"></i></div></div>';
+  root.innerHTML = '<div class="card center"><div class="shake">' + giftSvg(72) + '</div><p class="mut" style="margin:8px 0 0">' + esc(DRAW_QUOTES[Math.floor(Math.random() * DRAW_QUOTES.length)]) + '</p><div class="big spin" id="shuf">...</div><div class="bar"><i id="prog" style="width:0"></i></div></div>';
   let err = null;
   const work = performDraw(me.id).catch(e => { err = e; });
   const t0 = Date.now();
@@ -432,7 +501,6 @@ root.addEventListener('click', e => {
   else if (a === 'unpick') { pending = null; render(); }
   else if (a === 'claim') claim();
   else if (a === 'draw') draw();
-  else if (a === 'sound') { soundOn = !soundOn; ls.set('bunutan_sound', soundOn ? 'on' : 'off'); render(); }
   else if (a === 'eye') { shown[v] = !shown[v]; render(); }
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
@@ -442,7 +510,10 @@ root.addEventListener('click', e => {
   else if (a === 'delask') { confirmDel = true; render(); }
   else if (a === 'delno') { confirmDel = false; render(); }
   else if (a === 'delyes') deleteDraw();
+  else if (a === 'csend') sendChat(v);
 });
+
+root.addEventListener('keydown', e => { if (e.key === 'Enter' && /^cm[gr]$/.test(e.target.id)) { e.preventDefault(); sendChat(e.target.id.slice(2)); } });
 
 /* ---------- load + poll ---------- */
 async function load(force){
@@ -455,6 +526,8 @@ async function load(force){
     if (!force && j === lastJson && loaded) return;
     lastJson = j; ses = d; loaded = true;
     isAdmin = !!key && (await sha(key)) === d.info.adminHash;
+    const ae = document.activeElement;
+    if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); return; }
     render();
   } catch (e) { if (!loaded) { msg = 'Cannot reach the database. Check the databaseURL, Rules, and your connection.'; loaded = true; ses = null; notFound = true; render(); } }
 }
@@ -468,7 +541,7 @@ function boot(){
 if (CONFIGURED) {
   onAuthStateChanged(auth, u => { user = u; uid = u ? u.uid : null; authReady = true; boot(); });
   window.addEventListener('hashchange', boot);
-  setInterval(() => { if (user && sid && !busy && !document.hidden && !document.activeElement?.matches?.('input,textarea')) load(false); }, 4000);
+  setInterval(() => { if (user && sid && !busy && !document.hidden && (!document.activeElement?.matches?.('input,textarea') || /^cm[gr]$/.test(document.activeElement.id))) load(false); }, 4000);
 } else render();
 </script>
 </body>
