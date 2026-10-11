@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bunutan</title>
+<meta name="theme-color" content="#294221">
 <style>
-:root{--bg:#fbf7f2;--card:#fff;--ink:#2a2118;--mut:#7a6b5d;--line:#eadfd3;--acc:#c8372d;--acc-ink:#fff;--ok:#1f7a55;--chip:#f3ebe1}
-@media (prefers-color-scheme:dark){:root{--bg:#1b1612;--card:#251e18;--ink:#f3ebe1;--mut:#a89888;--line:#3a3028;--acc:#ef6a5e;--acc-ink:#1b1612;--ok:#4fc08d;--chip:#30271f}}
+:root{--bg:#f7f2e6;--card:#fffdf8;--ink:#22301b;--mut:#6e6a4b;--line:#e4d9b8;--acc:#B42D1A;--acc-ink:#fff;--link:#B42D1A;--ok:#385025;--chip:#eee5c8;--tab:#294221;--tab-ink:#f3e9c4;--stripe:linear-gradient(90deg,#294221,#385025 38%,#C6B173 50%,#891515 62%,#B42D1A)}
+@media (prefers-color-scheme:dark){:root{--bg:#14200f;--card:#1e3118;--ink:#f2ead0;--mut:#b4ab86;--line:#34502b;--acc:#c4361f;--acc-ink:#fff;--link:#e58a73;--ok:#C6B173;--chip:#2a4422;--tab:#C6B173;--tab-ink:#1f2f19;--stripe:linear-gradient(90deg,#385025,#C6B173 50%,#B42D1A)}}
 *{box-sizing:border-box}
+body::before{content:"";display:block;height:6px;background:var(--stripe)}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 #app{max-width:640px;margin:0 auto;padding:20px 16px 48px}
 header{display:flex;gap:12px;align-items:center;margin-bottom:16px}
@@ -18,11 +20,11 @@ h2{margin:0 0 8px;font-size:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .tabs{display:flex;gap:6px;margin-bottom:14px}
 .tab{flex:1;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
-.tab.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.tab.on{background:var(--tab);color:var(--tab-ink);border-color:var(--tab)}
 button.btn{background:var(--acc);color:var(--acc-ink);border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer}
 button.btn.ghost{background:var(--chip);color:var(--ink)}
 button.btn.sm{padding:6px 12px;font-size:14px}
-button.btn.danger{background:#b3261e;color:#fff}
+button.btn.danger{background:#891515;color:#fff}
 button.gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;border-radius:12px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
 label{display:block;font-size:14px;margin:12px 0 4px;color:var(--mut)}
 input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
@@ -40,7 +42,7 @@ textarea{min-height:140px;resize:vertical}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
 .stat b{display:block;font-size:24px}
-.big{font-size:34px;font-weight:800;text-align:center;margin:10px 0;color:var(--acc);word-break:break-word}
+.big{font-size:34px;font-weight:800;text-align:center;margin:10px 0;color:var(--link);word-break:break-word}
 .center{text-align:center}
 .eye{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;border-radius:8px;display:flex}
 .msg{background:var(--chip);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
@@ -51,7 +53,7 @@ textarea{min-height:140px;resize:vertical}
 .ub .r{display:flex;align-items:center;gap:8px}
 .ub img{width:28px;height:28px;border-radius:50%}
 pre{background:var(--chip);padding:12px;border-radius:10px;overflow:auto;font-size:13px}
-a{color:var(--acc)}
+a{color:var(--link)}
 .shake{display:inline-block;animation:shake .35s infinite}
 @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
@@ -89,8 +91,11 @@ const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return nu
 const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
-const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true"><rect x="9" y="27" width="46" height="31" rx="4" fill="#c8372d"/><rect x="5" y="18" width="54" height="13" rx="3.5" fill="#e4574b"/><rect x="28" y="18" width="8" height="40" fill="#f6c453"/><path d="M32 18C28 6 14 5 15 12c1 6 12 6 17 6z" fill="#f6c453"/><path d="M32 18C36 6 50 5 49 12c-1 6-12 6-17 6z" fill="#f2b233"/><circle cx="32" cy="18" r="3.5" fill="#f6c453"/></svg>';
-{ const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = 'data:image/svg+xml,' + encodeURIComponent(giftSvg(64)); document.head.appendChild(ic); }
+let gid = 0;
+const giftBody = i => '<defs><linearGradient id="' + i + 'b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B42D1A"/><stop offset="1" stop-color="#891515"/></linearGradient><linearGradient id="' + i + 'l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cc3f2a"/><stop offset="1" stop-color="#B42D1A"/></linearGradient><linearGradient id="' + i + 'r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dccb92"/><stop offset="1" stop-color="#C6B173"/></linearGradient></defs>' + '<rect x="10" y="28" width="44" height="29" rx="3.5" fill="url(#' + i + 'b)"/><rect x="10" y="31" width="44" height="3" fill="#000" opacity=".15"/><rect x="6" y="20" width="52" height="12" rx="3.5" fill="url(#' + i + 'l)"/><rect x="9" y="22" width="46" height="2" rx="1" fill="#fff" opacity=".22"/><rect x="28" y="20" width="8" height="37" rx="1" fill="url(#' + i + 'r)"/><rect x="28" y="20" width="3" height="37" fill="#fff" opacity=".25"/><path d="M32 20C28 8 13 6 14.5 14.5 15.8 21 26 20.5 32 20z" fill="url(#' + i + 'r)"/><path d="M32 20C36 8 51 6 49.5 14.5 48.2 21 38 20.5 32 20z" fill="#b9a35f"/><path d="M30.5 19C26 11.5 19.5 10.5 18.5 13.5" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".45"/><rect x="27.5" y="16.5" width="9" height="7" rx="3" fill="#d6c488" stroke="#9c8442" stroke-width=".8" stroke-opacity=".6"/>';
+const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' + giftBody('g' + (++gid)) + '</svg>';
+const faviconSvg = () => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#294221"/><g transform="translate(8 9) scale(.75)">' + giftBody('f') + '</g></svg>';
+{ const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = 'data:image/svg+xml,' + encodeURIComponent(faviconSvg()); document.head.appendChild(ic); }
 
 /* ---------- state ---------- */
 let user = null, uid = null, authReady = false;
