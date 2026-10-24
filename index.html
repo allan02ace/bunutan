@@ -421,7 +421,7 @@ async function performDraw(meId){
   const raw = await dbGet(sid + '/p') || {};
   const list = Object.entries(raw).map(([id, v]) => Object.assign({id}, v));
   const m = list.find(p => p.id === meId);
-  if (m.drewAt) return;
+  if (m.drewAt) return list.find(p => p.id === m.giftee);
   let picked = list.find(p => p.takenBy === uid);   /* resume if a previous attempt was interrupted */
   if (!picked) {
     const givers = list.filter(p => !p.drewAt && p.id !== m.id);
@@ -440,6 +440,7 @@ async function performDraw(meId){
   }
   if (!picked) throw new Error('empty');
   await dbPatch(sid + '/p/' + m.id, {giftee: picked.id, drewAt: Date.now()});
+  return picked;
 }
 
 const DRAW_QUOTES = [
@@ -464,19 +465,24 @@ async function draw(){
   const roll = drumRoll(dur);                          /* started inside the click, so audio is allowed */
   const names = parts().filter(p => p.id !== me.id).map(p => p.name);
   root.innerHTML = '<div class="card center"><div class="shake">' + giftSvg(72) + '</div><p class="mut" style="margin:8px 0 0">' + esc(drawQuote()) + '</p><div class="big spin" id="shuf">...</div><div class="bar"><i id="prog" style="width:0"></i></div></div>';
-  let err = null;
-  const work = performDraw(me.id).catch(e => { err = e; });
-  const t0 = Date.now();
-  const iv = setInterval(() => {
-    const s = $('#shuf'), p = $('#prog');
-    if (s) s.textContent = names[Math.floor(Math.random() * names.length)] || '...';
-    if (p) p.style.width = Math.min(100, (Date.now() - t0) / dur * 100) + '%';
-  }, 80);
-  while (Date.now() - t0 < dur && !err) await sleep(100);
-  clearInterval(iv);
-  if (err) roll.stop();
-  await work;
-  if (err) msg = err.message === 'empty' ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.';
+  let err = null, pick = null;
+  const work = performDraw(me.id).then(r => { pick = r; }).catch(e => { err = e; });
+  const t0 = Date.now(), el = () => Date.now() - t0;
+  let last = '';
+  const tick = () => { let n; do { n = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && n === last); last = n; const s = $('#shuf'); if (s) s.textContent = n || '...'; };
+  const prog = setInterval(() => { const p = $('#prog'); if (p) p.style.width = Math.min(100, el() / dur * 100) + '%'; }, 80);
+  const SLOW = [120, 160, 220, 300, 400, 520], slowTotal = SLOW.reduce((a, b) => a + b, 0);   /* the spin slows down near the end */
+  while (el() < dur - slowTotal && !err) { tick(); await sleep(80); }
+  for (const ms of SLOW) { if (err) break; tick(); await sleep(ms); }
+  await work;                                          /* wait for the real pick if the network is slow */
+  clearInterval(prog);
+  if (err) { roll.stop(); msg = err.message === 'empty' ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.'; }
+  else if (pick) {
+    const s = $('#shuf'), pb = $('#prog');
+    if (s) { s.textContent = pick.name; s.classList.remove('spin'); }   /* the last name shown IS the drawn name */
+    if (pb) pb.style.width = '100%';
+    await sleep(1100);
+  }
   busy = false; await load(true);
 }
 
