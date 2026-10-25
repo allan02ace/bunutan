@@ -441,7 +441,7 @@ function giftPerks(){
 }
 function viewSubAdd(){
   const mine = subs().filter(x => x.by === uid);
-  return '<div class="card"><h2>Add your own quote</h2><p class="mut" style="margin:0 0 6px">A hint or random line for the gift. It is added to the shared pool and shown at random after drawing.</p>' +
+  return '<div class="card"><h2>Add your own quote</h2>' +
   mine.map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') +
   '<div class="lk" style="margin-top:12px"><input id="addsubme" maxlength="120" placeholder="Write your quote..."><button class="btn" data-act="subadd" data-v="addsubme">Add</button></div></div>';
 }
@@ -456,7 +456,7 @@ function maybeSub(){
   if (subShow || subTimer || !loaded || !user || !sid || !ses) return;
   const me = parts().find(p => p.claimedBy === uid);
   if (!me || !me.drewAt || !subs().length) return;
-  subTimer = setTimeout(() => { subTimer = 0; const a = subs(); if (!a.length) return; subPick = a[Math.floor(Math.random() * a.length)].t; subShow = true; render(); clearInterval(subIv); subIv = setInterval(subTick, 3000); }, 5000);
+  subTimer = setTimeout(() => { subTimer = 0; const a = subs(); if (!a.length) return; subPick = a[Math.floor(Math.random() * a.length)].t; subShow = true; render(); clearInterval(subIv); subIv = setInterval(subTick, 4000); }, 5000);
 }
 async function shuffleSub(){
   const a = subs(); if (!a.length || subRolling) return; subRolling = true;
@@ -497,10 +497,10 @@ function viewMe(){
   }
   const g = ps.find(p => p.id === me.giftee), gw = wishItems(g);
   let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
-  h += '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
+  h += viewSubAdd() + '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
   gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
-  return h + '</div>' + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
+  return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
 }
 
 /* ---------- anonymous chat ---------- */
