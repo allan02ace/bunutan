@@ -80,6 +80,25 @@ a{color:var(--gold)}
 .bub{max-width:84%;align-self:flex-start;padding:9px 12px;border:1px solid var(--line);background:rgba(0,0,0,.22);border-radius:2px;word-break:break-word;font-size:15px}
 .bub.me{align-self:flex-end;background:var(--fill-bg);color:var(--fill-ink);border-color:var(--fill-bg)}
 .bl{font:700 9.5px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.perks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 4px;text-align:left}
+.perks.one{grid-template-columns:1fr}
+.perk{border:1px solid var(--gold);background:rgba(0,0,0,.28);padding:14px 14px 12px;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
+.perk .pl{font:700 10px/1.3 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.perk .pv{font:600 clamp(22px,5.5vw,28px)/1.15 var(--serif);color:var(--gold);word-break:break-word}
+.gname{display:flex;align-items:center;justify-content:center;gap:10px}
+.gname .big{margin:10px 0}
+.gname .eye{flex:none;color:var(--ink);border:1px solid var(--line);padding:9px}
+@media (max-width:420px){.perks{grid-template-columns:1fr}}
+.thumb{display:block;max-width:100%;max-height:160px;border-radius:2px;border:1px solid var(--line);margin-top:8px;cursor:zoom-in}
+.bub .thumb{max-height:140px;margin:6px 0 0}
+.pv-img{position:relative;display:inline-block;margin:10px 0 0}
+.pv-img .thumb{margin:0;cursor:default}
+.pv-img button{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1}
+.filebtn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;margin:0;padding:10px 14px;border:1px solid var(--line);border-radius:2px;font:700 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+.filebtn:hover{border-color:rgba(255,255,255,.5)}
+.filebtn input{display:none}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;border-radius:2px}
 .shake{display:inline-block;animation:shake .35s infinite}
 @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
@@ -144,6 +163,8 @@ let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraw
 let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false, confirmDel = false;
 const soundOn = true;
 let newTheme = 'forest';
+const hideKey = () => 'bunutan_hide_' + uid + '_' + sid;
+let hidePick = false, wishImg = '', chatImg = {g: '', r: ''}, lightbox = '';
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
 const myName = () => (user && (user.displayName || user.email)) || 'Google user';
@@ -200,6 +221,27 @@ function drumRoll(ms){
   return { stop(){ try { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0, ctx.currentTime, 0.03); setTimeout(() => { try { ctx.close(); } catch(e){} }, 300); } catch(e){} } };
 }
 
+/* ---------- images (compressed in the browser, stored with the data) ---------- */
+function compressImage(file, max){
+  return new Promise((res, rej) => {
+    if (!file || !/^image\//.test(file.type)) return rej(new Error('type'));
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, max / Math.max(im.width, im.height)), w = Math.round(im.width * k), h = Math.round(im.height * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      let q = 0.7, out = c.toDataURL('image/jpeg', q);
+      while (out.length > 140000 && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+      out.length > 220000 ? rej(new Error('big')) : res(out);
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('type')); };
+    im.src = url;
+  });
+}
+const imgTag = (src, cls) => src && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(src) ? '<img class="thumb ' + (cls || '') + '" src="' + src + '" alt="photo" data-act="zoom">' : '';
+const prevTag = (src, act, v) => src ? '<div class="pv-img"><img class="thumb" src="' + src + '" alt="">' + '<button type="button" data-act="' + act + '"' + (v ? ' data-v="' + v + '"' : '') + ' aria-label="Remove photo">&times;</button></div>' : '';
+
 /* ---------- auth ---------- */
 async function signIn(){
   const prov = new GoogleAuthProvider();
@@ -246,7 +288,7 @@ function render(){
   else if (notFound) h = '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
   else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
   else h = viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
-  root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h;
+  root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h + (lightbox ? '<div class="lb" data-act="closelb"><img src="' + lightbox + '" alt=""></div>' : '');
   restoreInputs(keep);
   root.querySelectorAll('.chat').forEach(c => { c.scrollTop = c.scrollHeight; });
 }
@@ -273,6 +315,7 @@ function viewHome(){
   h += '</div><div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
   '<label for="d">Gift exchange date (optional)</label><input id="d" placeholder="e.g. Dec 20, 2026">' +
   '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
+  '<label for="g">Gift theme (optional)</label><input id="g" maxlength="80" placeholder="e.g. Something useful">' +
   themePicker() +
   '<label for="n">Participants (one name per line, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
   '<p style="margin:14px 0 0"><button class="btn fill" data-act="create">Create draw</button></p></div>';
@@ -280,7 +323,7 @@ function viewHome(){
 }
 
 function viewHeader(){
-  const i = info(), bits = [i.date, i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
+  const i = info(), bits = [i.date, i.giftTheme ? 'Gift theme: ' + i.giftTheme : '', i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
   return '<header><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
 }
 function viewTabs(){
@@ -314,11 +357,19 @@ function viewWishEditor(me){
   const items = wishItems(me);
   let h = '<div class="card"><h2>My wishlist</h2><p class="mut" style="margin:0 0 8px">Add gift ideas. The person who draws your name will see this list.</p>';
   if (!items.length) h += '<p class="mut" style="margin:0 0 8px">Nothing here yet.</p>';
-  items.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div><button class="btn ghost sm" data-act="wdel" data-v="' + w.id + '">Remove</button></div>'; });
+  items.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div><button class="btn ghost sm" data-act="wdel" data-v="' + w.id + '">Remove</button></div>'; });
   h += '<label for="wt">Gift idea</label><input id="wt" maxlength="120" placeholder="e.g. Scented candle, size M hoodie, coffee beans">' +
   '<label for="wu">Link (optional)</label><input id="wu" maxlength="300" placeholder="https://...">' +
+  '<label>Photo (optional)</label><label class="filebtn" style="margin:0">Add photo<input type="file" id="wf" accept="image/*"></label>' + prevTag(wishImg, 'wimgx') +
   '<p style="margin:12px 0 0"><button class="btn fill" data-act="wadd">Add to wishlist</button></p></div>';
   return h;
+}
+
+function giftPerks(){
+  const i = info() || {}, a = [];
+  if (i.giftTheme) a.push('<div class="perk"><div class="pl">Gift theme</div><div class="pv">' + esc(i.giftTheme) + '</div></div>');
+  if (i.budget) a.push('<div class="perk"><div class="pl">Budget</div><div class="pv">' + esc(i.budget) + '</div></div>');
+  return a.length ? '<div class="perks' + (a.length === 1 ? ' one' : '') + '">' + a.join('') + '</div>' : '';
 }
 
 function viewMe(){
@@ -335,10 +386,10 @@ function viewMe(){
     return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn fill" data-act="draw" style="padding:17px 34px">Draw a name</button></p></div>' + viewChats(me, ps) + viewWishEditor(me);
   }
   const g = ps.find(p => p.id === me.giftee), gw = wishItems(g);
-  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="big">' + esc(g ? g.name : '?') + '</div><p class="mut" style="margin:0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
+  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
   h += '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
-  gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + '</div></div>'; });
+  gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
   return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
 }
 
@@ -347,10 +398,10 @@ const chatMsgs = key => Object.entries((((ses && ses.chat) || {})[key]) || {}).m
 function bubbles(role, ms, other){
   const mine = role === 'g' ? 'giver' : 'giftee';
   if (!ms.length) return '<p class="mut" style="margin:0">No messages yet. Say hello!</p>';
-  return ms.map(m => { const me = m.from === mine; return '<div class="bub' + (me ? ' me' : '') + '"><div class="bl">' + (me ? 'You' : esc(other)) + ' &middot; ' + fmt(m.at) + '</div>' + esc(m.t) + '</div>'; }).join('');
+  return ms.map(m => { const me = m.from === mine; return '<div class="bub' + (me ? ' me' : '') + '"><div class="bl">' + (me ? 'You' : esc(other)) + ' &middot; ' + fmt(m.at) + '</div>' + esc(m.t) + imgTag(m.i) + '</div>'; }).join('');
 }
 function chatCard(role, ms, title, hint, other){
-  return '<div class="card"><h2>' + title + '</h2><p class="mut" style="margin:0 0 10px">' + hint + '</p><div class="chat" id="cl-' + role + '">' + bubbles(role, ms, other) + '</div><div class="lk" style="margin-top:12px"><input id="cm' + role + '" maxlength="300" placeholder="Write a message..." autocomplete="off"><button class="btn sm" data-act="csend" data-v="' + role + '">Send</button></div></div>';
+  return '<div class="card"><h2>' + title + '</h2><p class="mut" style="margin:0 0 10px">' + hint + '</p><div class="chat" id="cl-' + role + '">' + bubbles(role, ms, other) + '</div><div class="lk" style="margin-top:12px"><input id="cm' + role + '" maxlength="300" placeholder="Write a message..." autocomplete="off"><button class="btn sm" data-act="csend" data-v="' + role + '">Send</button></div><div style="margin-top:8px"><label class="filebtn" style="margin:0">Attach photo<input type="file" id="cf-' + role + '" accept="image/*"></label></div>' + prevTag(chatImg[role], 'cimgx', role) + '</div>';
 }
 function viewChats(me, ps){
   let h = '';
@@ -366,11 +417,11 @@ function refreshChats(){
 }
 async function sendChat(role){
   const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return;
-  const inp = $('#cm' + role), t = ((inp && inp.value) || '').trim().slice(0, 300); if (!t) return;
+  const inp = $('#cm' + role), t = ((inp && inp.value) || '').trim().slice(0, 300), img = chatImg[role]; if (!t && !img) return;
   let key, from;
   if (role === 'g') { if (!me.drewAt) return; key = me.giftee; from = 'giver'; }
   else { key = me.id; from = 'giftee'; }
-  try { await dbPut(sid + '/chat/' + key + '/m' + Date.now().toString(36) + rnd(3), {from, t, at: Date.now()}); inp.value = ''; msg = ''; }
+  try { await dbPut(sid + '/chat/' + key + '/m' + Date.now().toString(36) + rnd(3), {from, t, i: img || null, at: Date.now()}); inp.value = ''; chatImg[role] = ''; msg = ''; }
   catch (e) { msg = 'Could not send your message. Please try again.'; }
   await load(true);
   const again = $('#cm' + role); if (again) again.focus();
@@ -393,7 +444,7 @@ async function createSession(){
   try {
     const s = rnd(10), k = rnd(16), p = {}, createdAt = Date.now();
     names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
-    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme}, p});
+    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme}, p});
     let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
     mine.unshift({sid: s, key: k, title, createdAt}); ls.set(mineKey(), JSON.stringify(mine.slice(0, 50)));
     try { await callRaw('PUT', uPath('draws/' + s), {title, key: k, createdAt}); } catch(e){}
@@ -520,7 +571,7 @@ async function addWish(){
   if (!t) { msg = 'Please describe the gift idea first.'; return render(); }
   if (wishItems(me).length >= 20) { msg = 'Your wishlist is full (20 items). Remove one to add another.'; return render(); }
   const id = 'w' + Date.now().toString(36) + rnd(3);
-  try { await dbPut(sid + '/p/' + me.id + '/wishlist/' + id, {t, u: safeUrl($('#wu').value), at: Date.now()}); $('#wt').value = ''; $('#wu').value = ''; msg = ''; }
+  try { await dbPut(sid + '/p/' + me.id + '/wishlist/' + id, {t, u: safeUrl($('#wu').value), i: wishImg || null, at: Date.now()}); $('#wt').value = ''; $('#wu').value = ''; wishImg = ''; msg = ''; }
   catch (e) { msg = 'Could not save. Please try again.'; }
   await load(true);
 }
@@ -559,6 +610,21 @@ root.addEventListener('click', e => {
   else if (a === 'delyes') deleteDraw();
   else if (a === 'theme') { newTheme = v; render(); }
   else if (a === 'csend') sendChat(v);
+  else if (a === 'zoom') { lightbox = b.src; render(); }
+  else if (a === 'closelb') { lightbox = ''; render(); }
+  else if (a === 'wimgx') { wishImg = ''; render(); }
+  else if (a === 'cimgx') { chatImg[v] = ''; render(); }
+  else if (a === 'hidepick') { hidePick = !hidePick; ls.set(hideKey(), hidePick ? '1' : '0'); render(); }
+});
+
+root.addEventListener('change', async e => {
+  const t = e.target, f = t.files && t.files[0]; if (!f || !/^(wf|cf-[gr])$/.test(t.id)) return;
+  try {
+    const d = await compressImage(f, 720);
+    if (t.id === 'wf') wishImg = d; else chatImg[t.id.slice(3)] = d;
+    msg = '';
+  } catch (er) { msg = er.message === 'big' ? 'That photo is too large. Try a smaller one.' : 'Please choose an image file.'; }
+  render();
 });
 
 root.addEventListener('keydown', e => { if (e.key === 'Enter' && /^cm[gr]$/.test(e.target.id)) { e.preventDefault(); sendChat(e.target.id.slice(2)); } });
@@ -582,6 +648,7 @@ async function load(force){
 
 function boot(){
   readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; newTheme = 'forest';
+  hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = '';
   render();
   if (user && sid) load(true); else if (user) loadHome();
 }
