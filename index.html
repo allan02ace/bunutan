@@ -409,9 +409,9 @@ function viewDash(){
   '<label for="eb">Budget</label><input id="eb" maxlength="40" placeholder="e.g. $20" value="' + esc(inf.budget || '') + '">' +
   '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">' +
   '<p style="margin:14px 0 0"><button class="btn fill" data-act="saveinfo">Save details</button></p></div>';
-  h += '<div class="card"><h2>Sub-themes (' + subs().length + ')</h2><p class="mut" style="margin:0 0 6px">More specific hints or random lines. After drawing, each person sees one picked at random after 5 seconds.</p>' +
+  h += '<div class="card"><h2>Sub-themes (' + subs().length + ')</h2><p class="mut" style="margin:0 0 6px">More specific hints or random lines. Everyone in the draw can add their own too. After drawing, each person sees one picked at random after 5 seconds.</p>' +
   (subs().length ? subs().map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') : '<p class="mut" style="margin:0 0 6px">None yet.</p>') +
-  '<div class="lk" style="margin-top:12px"><input id="addsub" maxlength="120" placeholder="e.g. Something you can eat"><button class="btn" data-act="subadd">Add</button></div></div>';
+  '<div class="lk" style="margin-top:12px"><input id="addsub" maxlength="120" placeholder="e.g. Something you can eat"><button class="btn" data-act="subadd" data-v="addsub">Add</button></div></div>';
   h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
   h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
   return h;
@@ -429,15 +429,21 @@ function viewWishEditor(me){
   return h;
 }
 
-const subs = () => Object.entries((info() && info().subthemes) || {}).map(([id, t]) => ({id, t: String(t)})).sort((a, b) => a.id < b.id ? -1 : 1);
+const subs = () => Object.entries((info() && info().subthemes) || {}).map(([id, v]) => ({id, t: String((v && typeof v === 'object') ? (v.t || '') : v), by: (v && typeof v === 'object') ? v.by : null})).filter(x => x.t).sort((a, b) => a.id < b.id ? -1 : 1);
 function giftPerks(){
   const i = info() || {}, a = [], sa = subs();
   if (i.giftTheme) a.push('<div class="perk"><div class="pl">Gift theme</div><div class="pv">' + esc(i.giftTheme) + '</div></div>');
   if (i.budget) a.push('<div class="perk"><div class="pl">Budget</div><div class="pv">' + esc(i.budget) + '</div></div>');
   if (sa.length) a.push(subShow
-    ? '<div class="perk sub"><div class="pl">' + (sa.length > 1 ? '<button class="btn ghost" data-act="subshuffle">Shuffle</button>' : '') + 'Sub-theme</div><div class="pv" id="subtxt">' + esc(subPick) + '</div></div>'
-    : '<div class="perk sub"><div class="pl">Sub-theme</div><div class="pv spin" style="display:inline-block">...</div></div>');
+    ? '<div class="perk sub">' + (sa.length > 1 ? '<div class="pl" style="margin:0 0 2px"><button class="btn ghost" data-act="subshuffle">Shuffle</button></div>' : '') + '<div class="pv" id="subtxt">' + esc(subPick) + '</div></div>'
+    : '<div class="perk sub"><div class="pv spin" style="display:inline-block">...</div></div>');
   return a.length ? '<div class="perks' + (a.length === 1 ? ' one' : '') + '">' + a.join('') + '</div>' : '';
+}
+function viewSubAdd(){
+  const mine = subs().filter(x => x.by === uid);
+  return '<div class="card"><h2>Add your own quote</h2><p class="mut" style="margin:0 0 6px">A hint or random line for the gift. It is added to the shared pool and shown at random after drawing.</p>' +
+  mine.map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') +
+  '<div class="lk" style="margin-top:12px"><input id="addsubme" maxlength="120" placeholder="Write your quote..."><button class="btn" data-act="subadd" data-v="addsubme">Add</button></div></div>';
 }
 function maybeSub(){
   if (subShow || subTimer || !loaded || !user || !sid || !ses) return;
@@ -452,13 +458,14 @@ async function shuffleSub(){
   if (a.length > 1) { let k = 0; do { n = a[Math.floor(Math.random() * a.length)].t; k++; } while (n === subPick && k < 20); }
   subPick = n; subRolling = false; render();
 }
-async function addSub(){
-  const v = (($('#addsub') && $('#addsub').value) || '').trim().slice(0, 120); if (!v) return;
+async function addSub(inpId){
+  const inp = $('#' + (inpId || 'addsub')), v = ((inp && inp.value) || '').trim().slice(0, 120); if (!v) return;
   if (subs().length >= 50) { msg = 'You can add up to 50 sub-themes.'; return render(); }
-  try { await dbPut(sid + '/info/subthemes/s' + Date.now().toString(36) + rnd(2), v); $('#addsub').value = ''; msg = ''; } catch (e) { msg = 'Could not add the sub-theme. Please try again.'; }
+  try { await dbPut(sid + '/info/subthemes/s' + Date.now().toString(36) + rnd(2), {t: v, by: uid}); inp.value = ''; msg = ''; } catch (e) { msg = 'Could not add the sub-theme. Please try again.'; }
   await load(true);
 }
 async function delSub(id){
+  const x = subs().find(z => z.id === id); if (!x || (!isAdmin && x.by !== uid)) return;
   try { await dbDel(sid + '/info/subthemes/' + id); msg = ''; } catch (e) { msg = 'Could not remove the sub-theme. Please try again.'; }
   await load(true);
 }
@@ -479,14 +486,14 @@ function viewMe(){
     return h + '</div>';
   }
   if (!me.drewAt) {
-    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn fill" data-act="draw" style="padding:17px 34px">Draw a name</button></p></div>' + viewChats(me, ps) + viewWishEditor(me);
+    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn fill" data-act="draw" style="padding:17px 34px">Draw a name</button></p></div>' + viewChats(me, ps) + viewWishEditor(me) + viewSubAdd();
   }
   const g = ps.find(p => p.id === me.giftee), gw = wishItems(g);
   let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved. Sign in with the same Google account to see it anytime. Keep it secret!</p></div>';
   h += '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
   gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
-  return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
+  return h + '</div>' + viewChats(me, ps) + viewWishEditor(me) + viewSubAdd();
 }
 
 /* ---------- anonymous chat ---------- */
@@ -709,7 +716,7 @@ root.addEventListener('click', e => {
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
   else if (a === 'saveinfo') saveInfo();
-  else if (a === 'subadd') addSub();
+  else if (a === 'subadd') addSub(v);
   else if (a === 'subdel') delSub(v);
   else if (a === 'subshuffle') shuffleSub();
   else if (a === 'copy') copy(v);
