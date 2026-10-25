@@ -99,6 +99,12 @@ a{color:var(--gold)}
 .filebtn input{display:none}
 .lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
 .lb img{max-width:100%;max-height:100%;border-radius:2px}
+.notifs{position:fixed;top:10px;left:0;right:0;z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center;padding:0 14px;pointer-events:none}
+.notif{pointer-events:auto;max-width:640px;width:100%;background:var(--fill-bg);color:var(--fill-ink);border:1px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.45);animation:slidein .3s ease-out;font-size:14px}
+.notif b{display:block;font:700 10.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.notif .x{margin-left:auto;background:none;border:0;color:inherit;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;opacity:.7}
+.notif .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--red)}
+@keyframes slidein{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
 .shake{display:inline-block;animation:shake .35s infinite}
 @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
@@ -242,6 +248,47 @@ function compressImage(file, max){
 const imgTag = (src, cls) => src && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(src) ? '<img class="thumb ' + (cls || '') + '" src="' + src + '" alt="photo" data-act="zoom">' : '';
 const prevTag = (src, act, v) => src ? '<div class="pv-img"><img class="thumb" src="' + src + '" alt="">' + '<button type="button" data-act="' + act + '"' + (v ? ' data-v="' + v + '"' : '') + ' aria-label="Remove photo">&times;</button></div>' : '';
 
+/* ---------- new message notifications ---------- */
+const seenKey = () => 'bunutan_seen_' + uid + '_' + sid;
+const getSeen = () => { try { return JSON.parse(ls.get(seenKey()) || '{}'); } catch(e){ return {}; } };
+const setSeen = (r, t) => { const o = getSeen(); o[r] = Math.max(o[r] || 0, t || 0); ls.set(seenKey(), JSON.stringify(o)); };
+let lastUnread = 0;
+function unreadInfo(){
+  if (!user || !sid || !ses || !loaded || notFound) return {};
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return {};
+  const seen = getSeen(), out = {};
+  const chk = (role, thread, from, label) => {
+    if (!thread) return;
+    const n = chatMsgs(thread).filter(m => m.from === from && (m.at || 0) > (seen[role] || 0));
+    if (n.length) out[role] = {n: n.length, last: n[n.length - 1].at, label};
+  };
+  if (me.drewAt) { const g = ps.find(p => p.id === me.giftee); chk('g', me.giftee, 'giftee', 'Reply from ' + (g ? g.name : 'your giftee')); }
+  chk('r', me.id, 'giver', 'Message from your Secret Santa');
+  return out;
+}
+function renderNotif(){
+  let el = document.getElementById('notif');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'notif'; el.className = 'notifs'; document.body.appendChild(el);
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-n]'); if (!b) return;
+      const u = unreadInfo();
+      if (b.dataset.n === 'x') { Object.entries(u).forEach(([r, x]) => setSeen(r, x.last)); renderNotif(); return; }
+      const r = b.dataset.n; if (u[r]) setSeen(r, u[r].last);
+      if (isAdmin && tab !== 'me') tab = 'me';
+      render();
+      const t = document.getElementById('cl-' + r); if (t) t.scrollIntoView({behavior: 'smooth', block: 'center'});
+    });
+  }
+  const u = unreadInfo(), ae = document.activeElement;
+  for (const r of ['g', 'r']) if (u[r] && ae && ae.id === 'cm' + r && !document.hidden) { setSeen(r, u[r].last); delete u[r]; }
+  const total = Object.values(u).reduce((a, x) => a + x.n, 0);
+  document.title = (total ? '(' + total + ') ' : '') + 'Bunutan';
+  if (total > lastUnread && document.hidden) { try { if (window.Notification && Notification.permission === 'granted') new Notification('Bunutan', {body: 'You have a new chat message.'}); } catch(e){} }
+  lastUnread = total;
+  el.innerHTML = Object.entries(u).map(([r, x]) => '<div class="notif" data-n="' + r + '"><span class="dot"></span><div><b>New chat' + (x.n > 1 ? ' (' + x.n + ')' : '') + '</b>' + esc(x.label) + '</div><button class="x" data-n="x" aria-label="Dismiss">&times;</button></div>').join('');
+}
+
 /* ---------- auth ---------- */
 async function signIn(){
   const prov = new GoogleAuthProvider();
@@ -290,6 +337,7 @@ function render(){
   else h = viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
   root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h + (lightbox ? '<div class="lb" data-act="closelb"><img src="' + lightbox + '" alt=""></div>' : '');
   restoreInputs(keep);
+  renderNotif();
   root.querySelectorAll('.chat').forEach(c => { c.scrollTop = c.scrollHeight; });
 }
 
@@ -348,6 +396,12 @@ function viewDash(){
   else h += '<p class="mut" style="margin:0 0 4px">If someone picked the wrong name or used the wrong Google account, release the name so it can be claimed again. This is not possible after they have drawn.</p>';
   waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Claimed ' + fmt(p.claimedAt) + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">Release</button></div>'; });
   h += '</div><div class="card"><h2>Not claimed yet (' + free.length + ')</h2>' + (free.length ? '<div class="chips">' + free.map(p => '<span class="chip">' + esc(p.name) + '</span>').join('') + '</div>' : '<p class="mut" style="margin:0">Every name has been claimed.</p>') + '</div>';
+  const inf = info() || {};
+  h += '<div class="card"><h2>Draw details</h2><p class="mut" style="margin:0 0 4px">Changes show up for everyone, even after they have drawn.</p>' +
+  '<label for="et">Gift theme</label><input id="et" maxlength="80" placeholder="e.g. Something useful" value="' + esc(inf.giftTheme || '') + '">' +
+  '<label for="eb">Budget</label><input id="eb" maxlength="40" placeholder="e.g. $20" value="' + esc(inf.budget || '') + '">' +
+  '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">' +
+  '<p style="margin:14px 0 0"><button class="btn fill" data-act="saveinfo">Save details</button></p></div>';
   h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
   h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
   return h;
@@ -546,6 +600,16 @@ async function release(pid){
   await load(true);
 }
 
+async function saveInfo(){
+  const g = v => (($(v) && $(v).value) || '').trim();
+  try {
+    await dbPatch(sid + '/info', {giftTheme: g('#et').slice(0, 80), budget: g('#eb').slice(0, 40), date: g('#ed').slice(0, 60)});
+    msg = 'Details saved.';
+  } catch (e) { msg = 'Could not save the details. Please try again.'; }
+  await load(true);
+  setTimeout(() => { if (msg === 'Details saved.') { msg = ''; render(); } }, 2000);
+}
+
 async function addName(){
   const v = ($('#addn').value || '').trim(); if (!v) return;
   if (parts().some(p => p.name.toLowerCase() === v.toLowerCase())) { msg = 'That name is already on the list.'; return render(); }
@@ -602,6 +666,7 @@ root.addEventListener('click', e => {
   else if (a === 'eye') { shown[v] = !shown[v]; render(); }
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
+  else if (a === 'saveinfo') saveInfo();
   else if (a === 'copy') copy(v);
   else if (a === 'wadd') addWish();
   else if (a === 'wdel') delWish(v);
@@ -641,7 +706,7 @@ async function load(force){
     lastJson = j; ses = d; loaded = true;
     isAdmin = !!key && (await sha(key)) === d.info.adminHash;
     const ae = document.activeElement;
-    if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); return; }
+    if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); renderNotif(); return; }
     render();
   } catch (e) { if (!loaded) { msg = 'Cannot reach the database. Check the databaseURL, Rules, and your connection.'; loaded = true; ses = null; notFound = true; render(); } }
 }
