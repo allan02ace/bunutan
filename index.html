@@ -105,6 +105,10 @@ a{color:var(--gold)}
 .notif .x{margin-left:auto;background:none;border:0;color:inherit;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;opacity:.7}
 .notif .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--red)}
 @keyframes slidein{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.perk.sub{grid-column:1/-1}
+.perk.sub .pv{animation:fadein .6s ease-out}
+.perk.sub .btn{float:right;padding:6px 10px;font-size:9.5px;margin-top:-4px}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .shake{display:inline-block;animation:shake .35s infinite}
 @keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
 .spin{animation:pulse .25s infinite alternate}
@@ -170,6 +174,7 @@ let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound =
 const soundOn = true;
 let newTheme = 'forest';
 const hideKey = () => 'bunutan_hide_' + uid + '_' + sid;
+let subShow = false, subPick = '', subTimer = 0, subRolling = false;
 let hidePick = false, wishImg = '', chatImg = {g: '', r: ''}, lightbox = '';
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
@@ -338,6 +343,7 @@ function render(){
   root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h + (lightbox ? '<div class="lb" data-act="closelb"><img src="' + lightbox + '" alt=""></div>' : '');
   restoreInputs(keep);
   renderNotif();
+  maybeSub();
   root.querySelectorAll('.chat').forEach(c => { c.scrollTop = c.scrollHeight; });
 }
 
@@ -364,6 +370,7 @@ function viewHome(){
   '<label for="d">Gift exchange date (optional)</label><input id="d" placeholder="e.g. Dec 20, 2026">' +
   '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
   '<label for="g">Gift theme (optional)</label><input id="g" maxlength="80" placeholder="e.g. Something useful">' +
+  '<label for="sb">Sub-themes (optional, one per line)</label><textarea id="sb" style="min-height:90px" placeholder="Something you can eat&#10;Something under your desk&#10;Something that smells good"></textarea>' +
   themePicker() +
   '<label for="n">Participants (one name per line, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
   '<p style="margin:14px 0 0"><button class="btn fill" data-act="create">Create draw</button></p></div>';
@@ -402,6 +409,9 @@ function viewDash(){
   '<label for="eb">Budget</label><input id="eb" maxlength="40" placeholder="e.g. $20" value="' + esc(inf.budget || '') + '">' +
   '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">' +
   '<p style="margin:14px 0 0"><button class="btn fill" data-act="saveinfo">Save details</button></p></div>';
+  h += '<div class="card"><h2>Sub-themes (' + subs().length + ')</h2><p class="mut" style="margin:0 0 6px">More specific hints or random lines. After drawing, each person sees one picked at random after 5 seconds.</p>' +
+  (subs().length ? subs().map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') : '<p class="mut" style="margin:0 0 6px">None yet.</p>') +
+  '<div class="lk" style="margin-top:12px"><input id="addsub" maxlength="120" placeholder="e.g. Something you can eat"><button class="btn" data-act="subadd">Add</button></div></div>';
   h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
   h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
   return h;
@@ -419,11 +429,43 @@ function viewWishEditor(me){
   return h;
 }
 
+const subs = () => Object.entries((info() && info().subthemes) || {}).map(([id, t]) => ({id, t: String(t)})).sort((a, b) => a.id < b.id ? -1 : 1);
 function giftPerks(){
-  const i = info() || {}, a = [];
+  const i = info() || {}, a = [], sa = subs();
   if (i.giftTheme) a.push('<div class="perk"><div class="pl">Gift theme</div><div class="pv">' + esc(i.giftTheme) + '</div></div>');
   if (i.budget) a.push('<div class="perk"><div class="pl">Budget</div><div class="pv">' + esc(i.budget) + '</div></div>');
+  if (sa.length) a.push(subShow
+    ? '<div class="perk sub"><div class="pl">' + (sa.length > 1 ? '<button class="btn ghost" data-act="subshuffle">Shuffle</button>' : '') + 'Sub-theme</div><div class="pv" id="subtxt">' + esc(subPick) + '</div></div>'
+    : '<div class="perk sub"><div class="pl">Sub-theme</div><div class="pv spin" style="display:inline-block">...</div></div>');
   return a.length ? '<div class="perks' + (a.length === 1 ? ' one' : '') + '">' + a.join('') + '</div>' : '';
+}
+function maybeSub(){
+  if (subShow || subTimer || !loaded || !user || !sid || !ses) return;
+  const me = parts().find(p => p.claimedBy === uid);
+  if (!me || !me.drewAt || !subs().length) return;
+  subTimer = setTimeout(() => { subTimer = 0; const a = subs(); if (!a.length) return; subPick = a[Math.floor(Math.random() * a.length)].t; subShow = true; render(); }, 5000);
+}
+async function shuffleSub(){
+  const a = subs(); if (!a.length || subRolling) return; subRolling = true;
+  const t0 = Date.now(); let n = subPick;
+  while (Date.now() - t0 < 900) { n = a[Math.floor(Math.random() * a.length)].t; const e = $('#subtxt'); if (e) e.textContent = n; await sleep(90); }
+  if (a.length > 1) { let k = 0; do { n = a[Math.floor(Math.random() * a.length)].t; k++; } while (n === subPick && k < 20); }
+  subPick = n; subRolling = false; render();
+}
+async function addSub(){
+  const v = (($('#addsub') && $('#addsub').value) || '').trim().slice(0, 120); if (!v) return;
+  if (subs().length >= 50) { msg = 'You can add up to 50 sub-themes.'; return render(); }
+  try { await dbPut(sid + '/info/subthemes/s' + Date.now().toString(36) + rnd(2), v); $('#addsub').value = ''; msg = ''; } catch (e) { msg = 'Could not add the sub-theme. Please try again.'; }
+  await load(true);
+}
+async function delSub(id){
+  try { await dbDel(sid + '/info/subthemes/' + id); msg = ''; } catch (e) { msg = 'Could not remove the sub-theme. Please try again.'; }
+  await load(true);
+}
+function subMap(){
+  const lines = [...new Set((($('#sb') && $('#sb').value) || '').split('\n').map(x => x.trim().slice(0, 120)).filter(Boolean))].slice(0, 50), o = {};
+  lines.forEach((t, k) => { o['s' + String(k).padStart(3, '0')] = t; });
+  return lines.length ? o : undefined;
 }
 
 function viewMe(){
@@ -498,7 +540,7 @@ async function createSession(){
   try {
     const s = rnd(10), k = rnd(16), p = {}, createdAt = Date.now();
     names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
-    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme}, p});
+    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), subthemes: subMap(), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme}, p});
     let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
     mine.unshift({sid: s, key: k, title, createdAt}); ls.set(mineKey(), JSON.stringify(mine.slice(0, 50)));
     try { await callRaw('PUT', uPath('draws/' + s), {title, key: k, createdAt}); } catch(e){}
@@ -667,6 +709,9 @@ root.addEventListener('click', e => {
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
   else if (a === 'saveinfo') saveInfo();
+  else if (a === 'subadd') addSub();
+  else if (a === 'subdel') delSub(v);
+  else if (a === 'subshuffle') shuffleSub();
   else if (a === 'copy') copy(v);
   else if (a === 'wadd') addWish();
   else if (a === 'wdel') delWish(v);
@@ -713,7 +758,7 @@ async function load(force){
 
 function boot(){
   readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; newTheme = 'forest';
-  hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = '';
+  hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = ''; clearTimeout(subTimer); subTimer = 0; subShow = false; subPick = '';
   render();
   if (user && sid) load(true); else if (user) loadHome();
 }
