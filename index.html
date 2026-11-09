@@ -184,6 +184,7 @@ const hideKey = () => 'bunutan_hide_' + uid + '_' + sid;
 let subShow = false, subPick = '', subTimer = 0, subIv = 0, subRolling = false;
 let hidePick = false, wishImg = '', chatImg = {g: '', r: ''}, lightbox = '';
 let myKeys = null, myPick = null, askPw = null, revealed = {}, pwBusy = false;   /* password lock: kept in memory only */
+let adminKey = null, allPicks = null;   /* exchange-date reveal: kept in memory only */
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
 const myName = () => (user && (user.displayName || user.email)) || 'Google user';
@@ -264,7 +265,50 @@ async function openPick(k, e){
 /* a blind marker saved on the drawn name: only the person who knows the password can recognise it as theirs */
 const tagFor = async (k, pid) => b64(new Uint8Array(await crypto.subtle.sign('HMAC', k.tag, new TextEncoder().encode(sid + '|' + pid))));
 const myG = me => (me && (me.giftee || (me.drewAt ? myPick : null))) || null;   /* me.giftee only exists on old, unlocked draws */
-const privacyNotice = () => '<div class="notice">' + LOCK + '<div><b>Your pick is private</b>No one can see who you pick, not even the draw creator. After you claim your name, you will set a password that locks your pick.</div></div>';
+
+/* ---------- creator view on the gift exchange date (set when the draw is created with a date) ----------
+   Each pick is also sealed with a public key made at creation. The matching private key is stored locked with the creator's
+   admin link secret (the k in the admin link), so the database still only holds ciphertext and participants cannot open it.
+   The app only offers "show all picks" to the admin on or after the exchange date. Before that, the admin can still open
+   one person's pick with that person's own password. The date is enforced by the app, not by the cryptography. */
+const RSA = {name: 'RSA-OAEP', hash: 'SHA-256'};
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const pad2 = n => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+const fmtDate = t => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString([], {year: 'numeric', month: 'long', day: 'numeric'}) : String(t || ''); };
+const escrow = () => (info() && info().escrow) || null;
+const dayOf = () => (info() && ISO.test(info().date || '')) ? info().date : '';
+const isRevealDay = () => !!escrow() && !!dayOf() && todayStr() >= dayOf();
+async function makeEscrow(adminSecret, s){
+  const kp = await crypto.subtle.generateKey({name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256'}, true, ['encrypt', 'decrypt']);
+  const pub = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.publicKey)), prv = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.privateKey));
+  const salt = b64(crypto.getRandomValues(new Uint8Array(16))), k = await deriveKeys(adminSecret, salt), iv = crypto.getRandomValues(new Uint8Array(12)), enc = new TextEncoder();
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv, additionalData: enc.encode(s)}, k.aes, enc.encode(prv)));
+  return {pub, s: salt, iv: b64(iv), ct: b64(ct)};
+}
+async function sealForAdmin(ec, gifteeId){
+  const pub = await crypto.subtle.importKey('jwk', JSON.parse(ec.pub), RSA, false, ['encrypt']);
+  return b64(new Uint8Array(await crypto.subtle.encrypt({name: 'RSA-OAEP'}, pub, new TextEncoder().encode(gifteeId))));
+}
+async function openAdminKey(){
+  const ec = escrow(); if (!ec || !key) return null;
+  try {
+    const k = await deriveKeys(key, ec.s);
+    const prv = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name: 'AES-GCM', iv: unb64(ec.iv), additionalData: new TextEncoder().encode(sid)}, k.aes, unb64(ec.ct))));
+    return await crypto.subtle.importKey('jwk', prv, RSA, false, ['decrypt']);
+  } catch (er) { return null; }
+}
+async function refreshAll(){
+  if (!adminKey) return;
+  const out = allPicks || {};
+  for (const p of parts()) {
+    if (!p.encA || out[p.id]) continue;
+    try { out[p.id] = new TextDecoder().decode(await crypto.subtle.decrypt({name: 'RSA-OAEP'}, adminKey, unb64(p.encA))); } catch (er) {}
+  }
+  allPicks = out;
+}
+const seeNote = () => 'The draw creator can see every pick on the gift exchange date (' + esc(fmtDate(dayOf())) + '), not before.';
+const privacyNotice = () => '<div class="notice">' + LOCK + '<div><b>Your pick is private</b>' + (escrow() ? 'Other participants can never see who you pick. ' + seeNote() : 'No one can see who you pick, not even the draw creator.') + ' After you claim your name, you will set a password that locks your pick.</div></div>';
 
 /* ---------- images (compressed in the browser, stored with the data) ---------- */
 function compressImage(file, max){
@@ -401,7 +445,8 @@ function viewHome(){
   else if (!homeDraws.length) h += '<p class="mut" style="margin:0">You have not created any draws yet. Create your first one below.</p>';
   else h += homeDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b>' + (m.createdAt ? '<div class="mut">Created ' + fmt(m.createdAt) + '</div>' : '') + '</div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Open</a></div>').join('');
   h += '</div><div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
-  '<label for="d">Gift exchange date (optional)</label><input id="d" placeholder="e.g. Dec 20, 2026">' +
+  '<label for="d">Gift exchange date (optional)</label><input id="d" type="date" min="' + todayStr() + '">' +
+  '<div class="mut" style="margin-top:6px">If you set a date, you (the creator) can see everyone\'s pick on that date. Before then, only with a person\'s own password. Participants are told this before they claim a name. The date can be moved later, but not earlier.</div>' +
   '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
   '<label for="g">Gift theme (optional)</label><input id="g" maxlength="80" placeholder="e.g. Something useful">' +
   '<label for="sb">Sub-themes (optional, one per line)</label><textarea id="sb" style="min-height:90px" placeholder="Something you can eat&#10;Something under your desk&#10;Something that smells good"></textarea>' +
@@ -412,7 +457,7 @@ function viewHome(){
 }
 
 function viewHeader(){
-  const i = info(), bits = [i.date, i.giftTheme ? 'Gift theme: ' + i.giftTheme : '', i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
+  const i = info(), bits = [fmtDate(i.date), i.giftTheme ? 'Gift theme: ' + i.giftTheme : '', i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
   return '<header><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
 }
 function viewTabs(){
@@ -428,13 +473,14 @@ function viewDash(){
   h += '<div class="card"><div class="bar"><i style="width:' + (total ? Math.round(drawn.length / total * 100) : 0) + '%"></i></div></div>';
   h += '<div class="card"><h2>Already drawn (' + drawn.length + ')</h2>';
   if (!drawn.length) h += '<p class="mut" style="margin:0">Nobody yet. Every pick is locked with that person\'s own password.</p>';
-  if (drawn.length) h += '<p class="mut" style="margin:0 0 4px">Every pick is locked with that person\'s own password. You can only reveal one if they give you their password.</p>';
+  if (drawn.length) h += '<p class="mut" style="margin:0 0 4px">Every pick is locked with that person\'s own password. You can only reveal one if they give you their password.' + (escrow() ? ' On the gift exchange date you can see all picks below.' : '') + '</p>';
   drawn.sort((a, b) => a.drewAt - b.drewAt).forEach(p => {
     const legacy = !!p.giftee, rv = legacy ? (shown[p.id] ? p.giftee : null) : revealed[p.id], g = rv ? byId[rv] : null;
     h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Drew ' + fmt(p.drewAt) + '</div></div><div class="gift">' + (rv ? '&rarr; ' + esc(g ? g.name : '?') : '&rarr; ' + (legacy ? '******' : LOCK)) + '</div><button class="eye" data-act="eye" data-v="' + p.id + '" aria-label="' + (rv ? 'Hide pick' : 'Reveal pick') + '">' + (rv ? EYEOFF : EYE) + '</button></div>';
     if (askPw === p.id) h += '<div class="pwask"><label for="apw">Enter ' + esc(p.name) + '\'s password to reveal</label><div class="lk"><input id="apw" type="password" autocomplete="off" placeholder="Their password"><button class="btn sm" data-act="areveal">Reveal</button><button class="btn ghost sm" data-act="acancel">Cancel</button></div></div>';
   });
-  h += '</div><div class="card"><h2>Claimed, not drawn yet (' + waiting.length + ')</h2>';
+  h += '</div>' + viewRevealAll(ps, byId);
+  h += '<div class="card"><h2>Claimed, not drawn yet (' + waiting.length + ')</h2>';
   if (!waiting.length) h += '<p class="mut" style="margin:0">None.</p>';
   else h += '<p class="mut" style="margin:0 0 4px">If someone picked the wrong name or used the wrong Google account, release the name so it can be claimed again. They can then set a new password. This is not possible after they have drawn.</p>';
   waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Claimed ' + fmt(p.claimedAt) + ' &middot; ' + (p.pw ? 'Password set' : 'No password yet') + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">Release</button></div>'; });
@@ -443,7 +489,7 @@ function viewDash(){
   h += '<div class="card"><h2>Draw details</h2><p class="mut" style="margin:0 0 4px">Changes show up for everyone, even after they have drawn.</p>' +
   '<label for="et">Gift theme</label><input id="et" maxlength="80" placeholder="e.g. Something useful" value="' + esc(inf.giftTheme || '') + '">' +
   '<label for="eb">Budget</label><input id="eb" maxlength="40" placeholder="e.g. $20" value="' + esc(inf.budget || '') + '">' +
-  '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">' +
+  (escrow() ? '<label for="ed">Gift exchange date</label><input id="ed" type="date" min="' + esc(dayOf()) + '" value="' + esc(dayOf()) + '"><div class="mut" style="margin-top:6px">You can move the date later, but not earlier.</div>' : '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">') +
   '<p style="margin:14px 0 0"><button class="btn fill" data-act="saveinfo">Save details</button></p></div>';
   h += '<div class="card"><h2>Quotes / sub-themes (' + subs().length + ')</h2><p class="mut" style="margin:0 0 6px">More specific hints or random lines. Everyone in the draw can add their own too. After drawing, each person sees one picked at random after 5 seconds.</p>' +
   (subs().length ? subs().map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') : '<p class="mut" style="margin:0 0 6px">None yet.</p>') +
@@ -451,6 +497,19 @@ function viewDash(){
   h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
   h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
   return h;
+}
+
+function viewRevealAll(ps, byId){
+  if (!escrow()) return '';
+  if (!isRevealDay()) { adminKey = null; allPicks = null; }
+  let h = '<div class="card"><h2>All picks</h2>';
+  if (!isRevealDay()) return h + '<p class="mut" style="margin:0">' + LOCK + ' Locked until the gift exchange date, <b>' + esc(fmtDate(dayOf())) + '</b>. Until then you can only open one person\'s pick with their password.</p></div>';
+  if (!allPicks) return h + '<p class="mut" style="margin:0 0 12px">It is the gift exchange date. You can now see who picked whom.</p><button class="btn sm" data-act="xshow">Show all picks</button></div>';
+  ps.filter(p => p.claimedBy || p.drewAt).forEach(p => {
+    const g = allPicks[p.id] ? byId[allPicks[p.id]] : null;
+    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b></div><div class="gift">' + (allPicks[p.id] ? '&rarr; ' + esc(g ? g.name : '?') : (p.drewAt ? '&rarr; n/a' : '<span class="mut">Not drawn yet</span>')) + '</div></div>';
+  });
+  return h + '<p style="margin:12px 0 0"><button class="btn ghost sm" data-act="xhide">Hide all</button></p></div>';
 }
 
 function viewWishEditor(me){
@@ -520,7 +579,7 @@ function subMap(){
 
 function viewSetPw(me){
   return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><h2>Set your password</h2>' +
-  '<div class="notice">' + LOCK + '<div><b>No one can see who you pick</b>Your pick is locked with this password, so not even the draw creator can see it unless you give them your password. You need it to draw and to see your pick later. If you forget it, your pick cannot be recovered.</div></div>' +
+  '<div class="notice">' + LOCK + '<div><b>' + (escrow() ? 'Your pick is private' : 'No one can see who you pick') + '</b>' + (escrow() ? 'Your pick is locked with this password. Other participants can never see it. ' + seeNote() + ' Before that, the creator needs your password.' : 'Your pick is locked with this password, so not even the draw creator can see it unless you give them your password.') + ' You need it to draw and to see your pick later. If you forget it, your pick cannot be recovered.</div></div>' +
   '<div style="text-align:left"><label for="pw1">Password (at least 6 characters)</label><input id="pw1" type="password" autocomplete="new-password" autocapitalize="off" maxlength="64"><label for="pw2">Confirm password</label><input id="pw2" type="password" autocomplete="new-password" autocapitalize="off" maxlength="64"></div>' +
   '<p style="margin:16px 0 0"><button class="btn fill" data-act="setpw">Save password</button></p></div>';
 }
@@ -550,7 +609,7 @@ function viewMe(){
   const gid = myG(me);
   if (!gid) return viewUnlock(me, 'view') + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
   const g = ps.find(p => p.id === gid), gw = wishItems(g);
-  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved and locked with your password. No one else can see it. Keep it secret!</p></div>';
+  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved and locked with your password. ' + (escrow() ? 'Other participants cannot see it. ' + seeNote() : 'No one else can see it.') + ' Keep it secret!</p></div>';
   h += viewSubAdd() + '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
   gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
@@ -605,16 +664,19 @@ async function createSession(){
   const names = [...new Set(($('#n').value || '').split('\n').map(s => s.trim()).filter(Boolean))];
   if (!title) { msg = 'Please enter an event name.'; return render(); }
   if (names.length < 3) { msg = 'Please enter at least 3 different names.'; return render(); }
+  const date = (($('#d') && $('#d').value) || '').trim();
+  if (date && (!ISO.test(date) || date < todayStr())) { msg = 'The gift exchange date cannot be in the past.'; return render(); }
   busy = true; msg = '';
   try {
     const s = rnd(10), k = rnd(16), p = {}, createdAt = Date.now();
+    const ec = date ? await makeEscrow(k, s) : undefined;
     names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
-    await dbPut(s, {info: {title, date: ($('#d').value || '').trim(), budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), subthemes: subMap(), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme}, p});
+    await dbPut(s, {info: {title, date, budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), subthemes: subMap(), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme, escrow: ec}, p});
     let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
     mine.unshift({sid: s, key: k, title, createdAt}); ls.set(mineKey(), JSON.stringify(mine.slice(0, 50)));
     try { await callRaw('PUT', uPath('draws/' + s), {title, key: k, createdAt}); } catch(e){}
     busy = false; location.hash = 's=' + s + '&k=' + k; return;
-  } catch (e) { msg = 'Could not save. Check the databaseURL and Rules, then try again.'; }
+  } catch (e) { msg = e.message === 'nocrypto' ? 'Your browser cannot lock picks here. Open this page over https in a recent browser.' : 'Could not save. Check the databaseURL and Rules, then try again.'; }
   busy = false; render();
 }
 
@@ -658,7 +720,10 @@ async function performDraw(meId){
     }
   }
   if (!picked) throw new Error('empty');
-  await dbPatch(sid + '/p/' + m.id, {enc: await sealPick(myKeys, picked.id), drewAt: Date.now()});
+  const ec = await dbGet(sid + '/info/escrow');
+  const done = {enc: await sealPick(myKeys, picked.id), drewAt: Date.now()};
+  if (ec && ec.pub) done.encA = await sealForAdmin(ec, picked.id);   /* lets the creator open it on the exchange date */
+  await dbPatch(sid + '/p/' + m.id, done);
   myPick = picked.id;
   return picked;
 }
@@ -749,6 +814,19 @@ async function adminReveal(){
   pwBusy = false; render();
 }
 
+async function adminShowAll(){
+  if (!escrow() || pwBusy) return;
+  if (!isRevealDay()) { msg = 'All picks can be shown from ' + fmtDate(dayOf()) + '.'; return render(); }
+  pwBusy = true; msg = 'Opening...'; render();
+  try {
+    const k = await openAdminKey();
+    if (!k) msg = 'Could not open the picks. Use the admin link you created this draw with.';
+    else { adminKey = k; allPicks = {}; await refreshAll(); msg = ''; }
+  } catch (e) { msg = 'Could not open the picks. Please try again.'; }
+  pwBusy = false; render();
+}
+function adminHideAll(){ adminKey = null; allPicks = null; msg = ''; render(); }
+
 async function release(pid){
   try {
     const cur = await dbGet(sid + '/p/' + pid);
@@ -760,8 +838,10 @@ async function release(pid){
 
 async function saveInfo(){
   const g = v => (($(v) && $(v).value) || '').trim();
+  const date = g('#ed').slice(0, 60);
+  if (escrow() && (!ISO.test(date) || date < dayOf())) { msg = 'The gift exchange date can only be moved later, not earlier.'; return render(); }
   try {
-    await dbPatch(sid + '/info', {giftTheme: g('#et').slice(0, 80), budget: g('#eb').slice(0, 40), date: g('#ed').slice(0, 60)});
+    await dbPatch(sid + '/info', {giftTheme: g('#et').slice(0, 80), budget: g('#eb').slice(0, 40), date});
     msg = 'Details saved.';
   } catch (e) { msg = 'Could not save the details. Please try again.'; }
   await load(true);
@@ -826,6 +906,8 @@ root.addEventListener('click', e => {
   else if (a === 'unlock') unlockPick();
   else if (a === 'areveal') adminReveal();
   else if (a === 'acancel') { askPw = null; render(); }
+  else if (a === 'xshow') adminShowAll();
+  else if (a === 'xhide') adminHideAll();
   else if (a === 'release') release(v);
   else if (a === 'add') addName();
   else if (a === 'saveinfo') saveInfo();
@@ -876,6 +958,7 @@ async function load(force){
     if (!force && j === lastJson && loaded) return;
     lastJson = j; ses = d; loaded = true;
     isAdmin = !!key && (await sha(key)) === d.info.adminHash;
+    if (adminKey) { if (isAdmin && isRevealDay()) await refreshAll(); else { adminKey = null; allPicks = null; } }
     const ae = document.activeElement;
     if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); renderNotif(); return; }
     render();
@@ -885,7 +968,7 @@ async function load(force){
 function boot(){
   readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; newTheme = 'forest';
   hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = ''; clearTimeout(subTimer); subTimer = 0; clearInterval(subIv); subIv = 0; subShow = false; subPick = '';
-  myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false;
+  myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false; adminKey = null; allPicks = null;
   render();
   if (user && sid) load(true); else if (user) loadHome();
 }
