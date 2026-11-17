@@ -364,7 +364,7 @@ function unreadInfo(){
     const n = chatMsgs(thread).filter(m => m.from === from && (m.at || 0) > (seen[role] || 0));
     if (n.length) out[role] = {n: n.length, last: n[n.length - 1].at, label};
   };
-  const mg = myG(me); if (mg) { const g = ps.find(p => p.id === mg); chk('g', mg, 'giftee', 'Reply from ' + (g ? g.name : 'your giftee')); }
+  const mg = myG(me); if (mg) { const g = ps.find(p => p.id === mg); chk('g', mg, 'giftee', 'Reply from ' + (g && !hidePick ? g.name : 'your giftee')); }
   chk('r', me.id, 'giver', 'Message from your Secret Santa');
   return out;
 }
@@ -707,7 +707,7 @@ function viewMe(){
   if (!gid) return viewUnlock(me, 'view') + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
   const g = ps.find(p => p.id === gid), gw = wishItems(g);
   let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved and locked with your password. ' + (escrow() ? 'Other participants cannot see it. ' + seeNote() : 'No one else can see it.') + ' Keep it secret!</p></div>';
-  h += viewSubAdd() + '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
+  h += viewSubAdd() + '<div class="card"><h2>' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : 'Their')) + '\'s wishlist</h2>';
   if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
   gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
   return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
@@ -725,7 +725,7 @@ function chatCard(role, ms, title, hint, other){
 }
 function viewChats(me, ps){
   let h = '';
-  const gid = myG(me); if (gid) { const g = ps.find(p => p.id === gid), gn = g ? g.name : 'your person'; h += chatCard('g', chatMsgs(gid), 'Chat with ' + esc(gn), 'Your messages show up as "Your Secret Santa", so they will not know it\'s you.', gn); }
+  const gid = myG(me); if (gid) { const g = ps.find(p => p.id === gid), gn = hidePick ? '\u2022\u2022\u2022\u2022\u2022\u2022' : (g ? g.name : 'your person'); h += chatCard('g', chatMsgs(gid), 'Chat with ' + esc(gn), 'Your messages show up as "Your Secret Santa", so they will not know it\'s you.', gn); }
   h += chatCard('r', chatMsgs(me.id), 'Chat with your Secret Santa', 'Message with your "Secret Santa" here.', 'Your Secret Santa');
   return h;
 }

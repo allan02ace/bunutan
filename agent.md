@@ -136,3 +136,7 @@ Roughly top to bottom: config and helpers, state, DB helpers, drum-roll audio, p
 ## Home list
 
 `loadHome` shows two lists: draws the person created (`draws`, opens with the admin key) and "Draws you joined" (`joined`, opens the participant link). Joined entries whose draw no longer exists (`info/title` is null) are dropped on load. Only the draw title and the claimed name are stored, never the pick.
+
+## Hide-name eye
+
+The eye on the drawn screen (`hidePick`) masks the giftee's name everywhere it appears: the big name, the wishlist title ("••••••'s wishlist"), the "Chat with ..." title and bubble label, and the unread-reply notification. If you add a new place that shows the giftee's name, mask it the same way.
