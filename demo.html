@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bunutan (DEMO, local only)</title>
+<meta name="theme-color" content="#1b3a2f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--page:#112419;--fill-bg:#efe7d0;--fill-ink:#17301f;--fill-hover:#fff;--ink:#f4f1e6;--mut:#b9c8c0;--line:rgba(255,255,255,.17);--card:rgba(71,95,89,.5);--field:rgba(0,0,0,.24);--chip:rgba(255,255,255,.1);--gold:#d7c27f;--red:#B42D1A;--serif:"Cormorant Garamond","Playfair Display",Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--page)}
+body{margin:0;color:var(--ink);font:16px/1.55 var(--sans);min-height:100vh;padding-bottom:150px}
+#demobar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#111;color:#eee;border-top:2px solid #ff8a1f;padding:8px 10px;font:12px/1.4 system-ui,sans-serif}
+#demobar b{color:#ff8a1f;letter-spacing:.08em}
+#demobar .r{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
+#demobar button{background:#222;color:#eee;border:1px solid #555;border-radius:3px;padding:7px 10px;font:inherit;cursor:pointer}
+#demobar button.on{background:#ff8a1f;color:#111;border-color:#ff8a1f;font-weight:700}
+#demobar button.warn{border-color:#c33;color:#f99}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='900'%20viewBox='0%200%20900%20900'%3E%3Cdefs%3E%0A%3Cg%20id='sf'%20fill='none'%3E%3Cpath%20transform='rotate(0)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(60)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(120)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(180)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(240)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3Cpath%20transform='rotate(300)'%20d='M0%200V-40M0-26L-10-37M0-26L10-37'/%3E%3C/g%3E%0A%3Cg%20id='tr'%3E%3Cpath%20d='M0-60L38-8H-38Z'/%3E%3Cpath%20d='M0-30L48%2028H-48Z'/%3E%3Cpath%20d='M0%200L58%2060H-58Z'/%3E%3Crect%20x='-9'%20y='60'%20width='18'%20height='22'/%3E%3Cpolygon%20points='0.0,-16.0%204.1,-5.7%2015.2,-4.9%206.7,2.2%209.4,12.9%200.0,7.0%20-9.4,12.9%20-6.7,2.2%20-15.2,-4.9%20-4.1,-5.7'%20transform='translate(0%20-76)'/%3E%3C/g%3E%0A%3Cg%20id='bb'%3E%3Crect%20x='-8'%20y='-44'%20width='16'%20height='11'/%3E%3Ccircle%20r='34'/%3E%3Cpath%20d='M-31-12Q0%206%2031-12M-31%2012Q0%2030%2031%2012'%20fill='none'/%3E%3Cpath%20d='M0-44C0-60%2014-60%2014-70'%20fill='none'/%3E%3C/g%3E%0A%3Cg%20id='ho'%3E%3Cpath%20d='M0%200C20-30%2055-30%2072%200C55%2030%2020%2030%200%200Z'%20transform='rotate(-28)'/%3E%3Cpath%20d='M0%200C20-30%2055-30%2072%200C55%2030%2020%2030%200%200Z'%20transform='rotate(28)'/%3E%3Ccircle%20cx='-4'%20cy='2'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3Ccircle%20cx='9'%20cy='-6'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3Ccircle%20cx='9'%20cy='10'%20r='9'%20fill='%23e0543c'%20fill-opacity='.35'/%3E%3C/g%3E%0A%3Cg%20id='cc'%20fill='none'%20stroke-width='14'%3E%3Cpath%20d='M0%2080V-18A24%2024%200%200%201%2048-18'/%3E%3Cpath%20d='M0%2080V-18A24%2024%200%200%201%2048-18'%20stroke='%23e0543c'%20stroke-opacity='.22'%20stroke-dasharray='11%2013'/%3E%3C/g%3E%0A%3Cpolygon%20id='st'%20points='0.0,-22.0%205.3,-7.3%2020.9,-6.8%208.6,2.8%2012.9,17.8%200.0,9.0%20-12.9,17.8%20-8.6,2.8%20-20.9,-6.8%20-5.3,-7.3'/%3E%0A%3C/defs%3E%3Cg%20fill='%23fff'%20fill-opacity='.035'%20stroke='%23fff'%20stroke-opacity='.07'%20stroke-width='3'%20stroke-linejoin='round'%20stroke-linecap='round'%3E%3Cuse%20href='%23sf'%20transform='translate(120%20120)%20rotate(0)%20scale(1.3)'/%3E%3Cuse%20href='%23sf'%20transform='translate(640%20170)%20rotate(15)%20scale(1.0)'/%3E%3Cuse%20href='%23sf'%20transform='translate(410%20610)%20rotate(0)%20scale(1.5)'/%3E%3Cuse%20href='%23sf'%20transform='translate(830%20730)%20rotate(30)%20scale(0.9)'/%3E%3Cuse%20href='%23sf'%20transform='translate(150%20690)%20rotate(10)%20scale(0.8)'/%3E%3Cuse%20href='%23sf'%20transform='translate(520%20400)%20rotate(20)%20scale(0.6)'/%3E%3Cuse%20href='%23tr'%20transform='translate(330%20260)%20rotate(-8)%20scale(1.2)'/%3E%3Cuse%20href='%23tr'%20transform='translate(700%20500)%20rotate(6)%20scale(1.1)'/%3E%3Cuse%20href='%23bb'%20transform='translate(500%20110)%20rotate(0)%20scale(1.0)'/%3E%3Cuse%20href='%23bb'%20transform='translate(90%20520)%20rotate(-10)%20scale(0.8)'/%3E%3Cuse%20href='%23bb'%20transform='translate(860%20880)%20rotate(0)%20scale(0.7)'/%3E%3Cuse%20href='%23ho'%20transform='translate(40%20330)%20rotate(-20)%20scale(1.0)'/%3E%3Cuse%20href='%23ho'%20transform='translate(570%20800)%20rotate(200)%20scale(1.0)'/%3E%3Cuse%20href='%23ho'%20transform='translate(780%20300)%20rotate(-150)%20scale(0.8)'/%3E%3Cuse%20href='%23cc'%20transform='translate(240%20500)%20rotate(15)%20scale(1.0)'/%3E%3Cuse%20href='%23cc'%20transform='translate(800%2070)%20rotate(-15)%20scale(0.8)'/%3E%3Cuse%20href='%23cc'%20transform='translate(640%20650)%20rotate(-12)%20scale(0.7)'/%3E%3Cuse%20href='%23st'%20transform='translate(470%20300)%20rotate(10)%20scale(1.0)'/%3E%3Cuse%20href='%23st'%20transform='translate(70%20870)%20rotate(0)%20scale(0.9)'/%3E%3Cuse%20href='%23st'%20transform='translate(230%2090)%20rotate(-12)%20scale(0.7)'/%3E%3Cuse%20href='%23st'%20transform='translate(780%20610)%20rotate(8)%20scale(0.8)'/%3E%3Ccircle%20cx='251'%20cy='320'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='748'%20cy='415'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='168'%20cy='102'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='30'%20cy='421'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='306'%20cy='829'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='237'%20cy='542'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='378'%20cy='293'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='856'%20cy='118'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='229'%20cy='36'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='836'%20cy='276'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='208'%20cy='178'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='306'%20cy='652'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='885'%20cy='878'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='98'%20cy='875'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='355'%20cy='697'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='528'%20cy='264'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='263'%20cy='494'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='101'%20cy='847'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='870'%20cy='317'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='308'%20cy='596'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='329'%20cy='878'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='209'%20cy='433'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='623'%20cy='305'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='472'%20cy='175'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='322'%20cy='275'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='93'%20cy='57'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='651'%20cy='297'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='557'%20cy='673'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='727'%20cy='361'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='699'%20cy='210'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='432'%20cy='217'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='657'%20cy='461'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='198'%20cy='374'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='774'%20cy='612'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='659'%20cy='581'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='341'%20cy='113'%20r='2'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='735'%20cy='244'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='793'%20cy='606'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='253'%20cy='135'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='191'%20cy='307'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='36'%20cy='53'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='724'%20cy='94'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='762'%20cy='701'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='28'%20cy='340'%20r='3'%20stroke='none'%20fill-opacity='.09'/%3E%3Ccircle%20cx='339'%20cy='166'%20r='4'%20stroke='none'%20fill-opacity='.09'/%3E%3C/g%3E%3C/svg%3E") 0 0/900px 900px,radial-gradient(900px 600px at 15% -5%,#2a5543,transparent 65%),linear-gradient(#1b3a2f,#0f2218)}
+#app{max-width:680px;margin:0 auto;padding:0 20px 56px}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 0 18px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none}
+.brand svg{flex:none}
+.brand b{display:block;font-size:13px;letter-spacing:.42em;text-transform:uppercase;font-weight:600;line-height:1.25}
+.brand small{display:block;font-size:8px;letter-spacing:.34em;text-transform:uppercase;color:var(--mut)}
+.nav .r{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.nav img{width:26px;height:26px;border-radius:50%}
+.nl{font:700 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
+.nl:hover{color:var(--gold)}
+h1{font:500 clamp(34px,7vw,46px)/1.05 var(--serif);margin:0}
+h2{margin:0 0 10px;font:700 11.5px/1.3 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+header{margin:14px 0 22px}
+header .mut{margin-top:6px;letter-spacing:.08em;text-transform:uppercase;font-size:11.5px}
+.mut{color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:20px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:13px 8px;border:1px solid var(--line);background:transparent;color:var(--mut);font:700 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;border-radius:2px;cursor:pointer}
+.tab.on{background:var(--fill-bg);color:var(--fill-ink);border-color:var(--fill-bg)}
+.tab.sk{flex:none;width:52px;padding:0;display:flex;align-items:center;justify-content:center}
+select{width:100%;padding:12px 13px;border-radius:2px;border:1px solid rgba(255,255,255,.2);background:var(--field);color:var(--ink);font:inherit}
+select:focus{outline:none;border-color:rgba(255,255,255,.65)}
+select option{background:#fff;color:#111}
+.asg-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+button.btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:2px;padding:15px 28px;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+button.btn:hover{background:rgba(255,255,255,.12)}
+button.btn.fill{background:var(--fill-bg);border-color:var(--fill-bg);color:var(--fill-ink)}
+button.btn.fill:hover{background:var(--fill-hover)}
+button.btn.ghost{border-color:var(--line);color:rgba(255,255,255,.82)}
+button.btn.sm{padding:10px 14px;font-size:10.5px}
+button.btn.danger{background:#891515;border-color:#891515;color:#fff}
+label{display:block;font:700 10.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:16px 0 6px;color:var(--mut)}
+input,textarea{width:100%;padding:12px 13px;border-radius:2px;border:1px solid rgba(255,255,255,.2);background:var(--field);color:var(--ink);font:inherit}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
+input:focus,textarea:focus{outline:none;border-color:rgba(255,255,255,.65)}
+textarea{min-height:140px;resize:vertical}
+.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.name{padding:14px 12px;border-radius:2px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.name:hover{border-color:rgba(255,255,255,.5)}
+.name.sel{border-color:var(--gold);outline:1px solid var(--gold)}
+.name.off{opacity:.4;cursor:default;text-decoration:line-through}
+.row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .g{flex:1;min-width:0;word-break:break-word}
+.row .gift{font-weight:700;color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:2px;padding:4px 12px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:14px 8px;text-align:center}
+.stat b{display:block;font:500 34px/1.1 var(--serif)}
+.stat .mut{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.big{font:500 clamp(40px,10vw,58px)/1.05 var(--serif);text-align:center;margin:10px 0;color:var(--gold);word-break:break-word}
+.center{text-align:center}
+.eye{background:none;border:0;color:var(--mut);cursor:pointer;padding:6px;border-radius:2px;display:flex}
+.eye:hover{color:var(--ink)}
+.msg{background:rgba(0,0,0,.28);border-left:3px solid var(--gold);padding:12px 14px;margin-bottom:14px;font-size:14px}
+.bar{height:6px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold)}
+.lk{display:flex;gap:8px;margin-bottom:8px}
+pre{background:rgba(0,0,0,.3);padding:12px;border-radius:2px;overflow:auto;font-size:13px}
+a{color:var(--gold)}
+.hero{position:relative;margin:22px 0 8px;min-height:440px}
+.hero .panel{position:absolute;left:11%;right:0;top:0;bottom:0;background:rgba(71,95,89,.66);border:1px solid rgba(255,255,255,.06)}
+.hero .txt{position:relative;padding:52px 18px 48px 4%}
+.hero h1{font-size:clamp(46px,13vw,80px);line-height:1}
+.hero p{max-width:30ch;margin:22px 0 30px;color:#dfe8e3}
+.hero .gicon{margin-right:12px;vertical-align:-5px}
+.chat{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px}
+.bub{max-width:84%;align-self:flex-start;padding:9px 12px;border:1px solid var(--line);background:rgba(0,0,0,.22);border-radius:2px;word-break:break-word;font-size:15px}
+.bub.me{align-self:flex-end;background:var(--fill-bg);color:var(--fill-ink);border-color:var(--fill-bg)}
+.bl{font:700 9.5px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.perks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 4px;text-align:left}
+.perks.one{grid-template-columns:1fr}
+.perk{border:1px solid var(--gold);background:rgba(0,0,0,.28);padding:14px 14px 12px;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
+.perk .pl{font:700 10px/1.3 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.perk .pv{font:600 clamp(22px,5.5vw,28px)/1.15 var(--serif);color:var(--gold);word-break:break-word}
+.gname{display:flex;align-items:center;justify-content:center;gap:10px}
+.gname .big{margin:10px 0}
+.gname .eye{flex:none;color:var(--ink);border:1px solid var(--line);padding:9px}
+@media (max-width:420px){.perks{grid-template-columns:1fr}}
+.thumb{display:block;max-width:100%;max-height:160px;border-radius:2px;border:1px solid var(--line);margin-top:8px;cursor:zoom-in}
+.bub .thumb{max-height:140px;margin:6px 0 0}
+.pv-img{position:relative;display:inline-block;margin:10px 0 0}
+.pv-img .thumb{margin:0;cursor:default}
+.pv-img button{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);color:#fff;border:0;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1}
+.filebtn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;margin:0;padding:10px 14px;border:1px solid var(--line);border-radius:2px;font:700 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+.filebtn:hover{border-color:rgba(255,255,255,.5)}
+.filebtn input{display:none}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.lb img{max-width:100%;max-height:100%;border-radius:2px}
+.notifs{position:fixed;top:10px;left:0;right:0;z-index:40;display:flex;flex-direction:column;gap:8px;align-items:center;padding:0 14px;pointer-events:none}
+.notif{pointer-events:auto;max-width:640px;width:100%;background:var(--fill-bg);color:var(--fill-ink);border:1px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.45);animation:slidein .3s ease-out;font-size:14px}
+.notif b{display:block;font:700 10.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.notif .x{margin-left:auto;background:none;border:0;color:inherit;font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;opacity:.7}
+.notif .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--red)}
+@keyframes slidein{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.perk.sub{grid-column:1/-1}
+.perk.sub .pv{animation:fadein .6s ease-out}
+.perk.sub .btn{float:right;padding:6px 10px;font-size:9.5px;margin-top:-4px}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.shake{display:inline-block;animation:shake .35s infinite}
+@keyframes shake{0%{transform:rotate(-6deg)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg)}}
+.spin{animation:pulse .25s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+@media (max-width:520px){.nl.nm{display:none}}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-opt{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:12px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:2px;cursor:pointer;text-align:left;font:inherit}
+.theme-opt:hover{border-color:rgba(255,255,255,.5)}
+.theme-opt.sel{border-color:var(--gold);outline:1px solid var(--gold)}
+.theme-opt .sw{width:100%;height:30px;border-radius:2px;border:1px solid rgba(255,255,255,.2)}
+.theme-opt b{font:700 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.theme-opt small{color:var(--mut);font-size:12px}
+html[data-theme="halloween"]{--page:#0b0712;--fill-bg:#ff8a1f;--fill-ink:#1a1024;--fill-hover:#ffab4d;--ink:#f6efe6;--mut:#c2b4d4;--card:rgba(66,40,98,.5);--field:rgba(0,0,0,.3);--gold:#ff9a3c}
+html[data-theme="halloween"] body::before{background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27900%27%20height%3D%27900%27%20viewBox%3D%270%200%20900%20900%27%3E%3Cdefs%3E%3Cg%20id%3D%27pk%27%3E%3Cpath%20d%3D%27M0-30C-8-34-14-34-18-30C-34-30-44-14-44%204C-44%2024-30%2036-14%2034C-8%2038%208%2038%2014%2034C30%2036%2044%2024%2044%204C44-14%2034-30%2018-30C14-34%208-34%200-30Z%27%2F%3E%3Cpath%20d%3D%27M0-30C-14-22-14%2028%200%2034M0-30C14-22%2014%2028%200%2034%27%20fill%3D%27none%27%2F%3E%3Cpath%20d%3D%27M0-30C0-42%208-46%2014-46%27%20fill%3D%27none%27%2F%3E%3Cpath%20d%3D%27M-26-2L-14-2L-20-14ZM14-2L26-2L20-14Z%27%2F%3E%3Cpath%20d%3D%27M-24%2012L-14%2022L-6%2014L0%2022L6%2014L14%2022L24%2012%27%20fill%3D%27none%27%2F%3E%3C%2Fg%3E%3Cg%20id%3D%27bt%27%3E%3Cpath%20d%3D%27M0-4C-6-16-26-18-44-6C-34-8-30-2-26%208C-20%200-12%200-7%208C-4%204-2%204%200%206C2%204%204%204%207%208C12%200%2020%200%2026%208C30-2%2034-8%2044-6C26-18%206-16%200-4Z%27%2F%3E%3Cpath%20d%3D%27M-5-6L-4-16L0-8L4-16L5-6%27%20fill%3D%27none%27%2F%3E%3C%2Fg%3E%3Cg%20id%3D%27gh%27%3E%3Cpath%20d%3D%27M-22%2032V-4C-22-32%2022-32%2022-4V32L14%2024L7%2032L0%2024L-7%2032L-14%2024Z%27%2F%3E%3Ccircle%20cx%3D%27-8%27%20cy%3D%27-6%27%20r%3D%273.5%27%20stroke%3D%27none%27%20fill-opacity%3D%27.2%27%2F%3E%3Ccircle%20cx%3D%278%27%20cy%3D%27-6%27%20r%3D%273.5%27%20stroke%3D%27none%27%20fill-opacity%3D%27.2%27%2F%3E%3Cellipse%20cx%3D%270%27%20cy%3D%278%27%20rx%3D%274%27%20ry%3D%275%27%20fill%3D%27none%27%2F%3E%3C%2Fg%3E%3Cg%20id%3D%27wb%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M0%200L110%200M0%200L78%2078M0%200L0%20110M0%200L100%2040M0%200L40%20100%27%2F%3E%3Cpath%20d%3D%27M30%200Q22%2022%200%2030M60%200Q44%2044%200%2060M90%200Q66%2066%200%2090%27%2F%3E%3C%2Fg%3E%3Cpath%20id%3D%27mn%27%20d%3D%27M12-34A34%2034%200%201%200%2034%2016A27%2027%200%200%201%2012-34Z%27%2F%3E%3Cg%20id%3D%27tb%27%3E%3Cpath%20d%3D%27M-20%2036V-8A20%2020%200%200%201%2020-8V36Z%27%2F%3E%3Cpath%20d%3D%27M0-16V8M-8-6H8%27%20fill%3D%27none%27%2F%3E%3C%2Fg%3E%3Cg%20id%3D%27cn%27%3E%3Cpath%20d%3D%27M-15%2030L-6-30Q0-36%206-30L15%2030Q0%2036-15%2030Z%27%2F%3E%3Cpath%20d%3D%27M-11%206H11M-8-14H8%27%20fill%3D%27none%27%2F%3E%3C%2Fg%3E%3Cg%20id%3D%27sp%27%20fill%3D%27none%27%3E%3Cpath%20d%3D%27M0-140V0%27%2F%3E%3Ccircle%20r%3D%277%27%20fill%3D%27%23fff%27%20fill-opacity%3D%27.05%27%2F%3E%3Cpath%20d%3D%27M-6-3L-20-12L-26%204M-6%202L-22%208L-24%2022M6-3L20-12L26%204M6%202L22%208L24%2022%27%2F%3E%3C%2Fg%3E%3Cpolygon%20id%3D%27st%27%20points%3D%270.0%2C-22.0%205.3%2C-7.3%2020.9%2C-6.8%208.6%2C2.8%2012.9%2C17.8%200.0%2C9.0%20-12.9%2C17.8%20-8.6%2C2.8%20-20.9%2C-6.8%20-5.3%2C-7.3%27%2F%3E%3C%2Fdefs%3E%3Cg%20fill%3D%27%23fff%27%20fill-opacity%3D%27.035%27%20stroke%3D%27%23fff%27%20stroke-opacity%3D%27.075%27%20stroke-width%3D%273%27%20stroke-linejoin%3D%27round%27%20stroke-linecap%3D%27round%27%3E%3Cuse%20href%3D%27%23wb%27%20transform%3D%27translate%280%200%29%20rotate%280%29%20scale%281.2%29%27%2F%3E%3Cuse%20href%3D%27%23wb%27%20transform%3D%27translate%28900%20900%29%20rotate%28180%29%20scale%281.3%29%27%2F%3E%3Cuse%20href%3D%27%23sp%27%20transform%3D%27translate%28640%20150%29%20rotate%280%29%20scale%281.0%29%27%2F%3E%3Cuse%20href%3D%27%23sp%27%20transform%3D%27translate%28250%20330%29%20rotate%280%29%20scale%280.7%29%27%2F%3E%3Cuse%20href%3D%27%23mn%27%20transform%3D%27translate%28790%20110%29%20rotate%2815%29%20scale%281.0%29%27%2F%3E%3Cuse%20href%3D%27%23pk%27%20transform%3D%27translate%28170%20250%29%20rotate%28-8%29%20scale%281.0%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23pk%27%20transform%3D%27translate%28560%20650%29%20rotate%286%29%20scale%281.15%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23pk%27%20transform%3D%27translate%28830%20470%29%20rotate%28-5%29%20scale%280.8%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23bt%27%20transform%3D%27translate%28400%20120%29%20rotate%280%29%20scale%280.9%29%27%2F%3E%3Cuse%20href%3D%27%23bt%27%20transform%3D%27translate%2880%20560%29%20rotate%28-10%29%20scale%280.8%29%27%2F%3E%3Cuse%20href%3D%27%23bt%27%20transform%3D%27translate%28330%20860%29%20rotate%2812%29%20scale%280.7%29%27%2F%3E%3Cuse%20href%3D%27%23bt%27%20transform%3D%27translate%28710%20340%29%20rotate%285%29%20scale%280.6%29%27%2F%3E%3Cuse%20href%3D%27%23gh%27%20transform%3D%27translate%28450%20390%29%20rotate%28-6%29%20scale%281.0%29%27%2F%3E%3Cuse%20href%3D%27%23gh%27%20transform%3D%27translate%28150%20790%29%20rotate%288%29%20scale%280.9%29%27%2F%3E%3Cuse%20href%3D%27%23gh%27%20transform%3D%27translate%28860%20730%29%20rotate%28-4%29%20scale%280.8%29%27%2F%3E%3Cuse%20href%3D%27%23tb%27%20transform%3D%27translate%28270%20590%29%20rotate%280%29%20scale%280.9%29%27%2F%3E%3Cuse%20href%3D%27%23tb%27%20transform%3D%27translate%28650%20830%29%20rotate%28-5%29%20scale%280.8%29%27%2F%3E%3Cuse%20href%3D%27%23cn%27%20transform%3D%27translate%28490%20520%29%20rotate%2820%29%20scale%280.9%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23cn%27%20transform%3D%27translate%2835%20430%29%20rotate%28-15%29%20scale%280.7%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23cn%27%20transform%3D%27translate%28770%20640%29%20rotate%2812%29%20scale%280.7%29%27%20fill%3D%27%23ff8a1f%27%20fill-opacity%3D%27.11%27%2F%3E%3Cuse%20href%3D%27%23st%27%20transform%3D%27translate%28520%20270%29%20rotate%2810%29%20scale%280.7%29%27%2F%3E%3Cuse%20href%3D%27%23st%27%20transform%3D%27translate%2860%20880%29%20rotate%280%29%20scale%280.6%29%27%2F%3E%3Cuse%20href%3D%27%23st%27%20transform%3D%27translate%28210%2060%29%20rotate%28-12%29%20scale%280.5%29%27%2F%3E%3Cuse%20href%3D%27%23st%27%20transform%3D%27translate%28700%20600%29%20rotate%288%29%20scale%280.6%29%27%2F%3E%3Ccircle%20cx%3D%27330%27%20cy%3D%2760%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%27380%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27560%27%20cy%3D%2740%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27880%27%20cy%3D%27300%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%2740%27%20cy%3D%27700%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27420%27%20cy%3D%27740%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27600%27%20cy%3D%27470%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27250%27%20cy%3D%27880%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27760%27%20cy%3D%27860%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27470%27%20cy%3D%27640%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27700%27%20cy%3D%2760%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%27200%27%20r%3D%273%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27850%27%20cy%3D%27560%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3Ccircle%20cx%3D%27380%27%20cy%3D%27450%27%20r%3D%272%27%20stroke%3D%27none%27%20fill-opacity%3D%27.1%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 0 0/900px 900px,radial-gradient(900px 600px at 85% -5%,#4a2370,transparent 65%),linear-gradient(#1a1024,#0b0712)}
+html[data-theme="halloween"] button.btn.danger{background:#a3201a;border-color:#a3201a}
+html[data-theme="halloween"] .hero .panel{background:rgba(66,40,98,.6)}
+.notice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--gold);background:rgba(0,0,0,.25);padding:12px 14px;margin:0 0 14px;text-align:left;font-size:14px;line-height:1.5}
+.notice svg{flex:none;margin-top:2px;color:var(--gold)}
+.notice b{display:block;font:700 10.5px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px;color:var(--gold)}
+.pwask{padding:2px 0 12px;border-top:0}
+.pwask label{margin:4px 0 6px}
+.gift svg{vertical-align:-3px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+/* ============ CONFIG: paste your firebaseConfig values here ============ */
+const FIREBASE_CONFIG = {apiKey: 'demo', databaseURL: 'https://demo.local'};   /* DEMO: no Firebase is used */
+/* ======================================================================= */
+
+const CONFIGURED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.databaseURL);
+const DB_URL = (FIREBASE_CONFIG.databaseURL || '').replace(/\/$/, '');
+const auth = {};   /* DEMO: mock auth, see the demo bar */
+
+const $ = s => document.querySelector(s);
+const root = $('#app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = t => t ? new Date(t).toLocaleString([], {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) : '';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rnd = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => (b % 36).toString(36)).join(''); };
+const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))), b => b.toString(16).padStart(2, '0')).join('');
+const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, v); } catch(e){} } };
+const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
+const LOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const SKULL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 2.8 1.4 4.6 3 5.8V19a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3.2c1.6-1.2 3-3 3-5.8a8 8 0 0 0-8-8z"/><circle cx="9" cy="11" r="1.6"/><circle cx="15" cy="11" r="1.6"/><path d="M10 20v-2.5M14 20v-2.5M12 14.5l-1 2h2z"/></svg>';
+const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+const THEMES = {
+  forest: {name: 'Forest', bar: '#1b3a2f', tile: '#1b3a2f', line: '#d7c27f'},
+  halloween: {name: 'Halloween', bar: '#1a1024', tile: '#1a1024', line: '#ff9a3c'}
+};
+const giftBody = (sw, col) => '<g fill="none" style="stroke:' + (col || 'var(--gold)') + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="29" width="44" height="28" rx="2.5"/><rect x="6" y="20" width="52" height="9" rx="2.5"/><path d="M29 20V57M35 20V57"/><path d="M32 20C28 7 13 6 14.5 13.5 15.8 19.5 26 20 32 20z"/><path d="M32 20C36 7 51 6 49.5 13.5 48.2 19.5 38 20 32 20z"/></g>';
+const giftSvg = (s, cls) => '<svg class="' + (cls || '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' + giftBody(2) + '</svg>';
+const faviconSvg = t => { const c = THEMES[t] || THEMES.forest; return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="' + c.tile + '"/><g transform="translate(8 9) scale(.75)">' + giftBody(3.4, c.line) + '</g></svg>'; };
+const favLink = document.createElement('link'); favLink.rel = 'icon'; favLink.href = 'data:image/svg+xml,' + encodeURIComponent(faviconSvg('forest')); document.head.appendChild(favLink);
+
+/* ---------- state ---------- */
+let user = null, uid = null, authReady = false;
+let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraws = null, joinedDraws = [];
+let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false, confirmDel = false;
+const soundOn = true;
+let newTheme = 'forest';
+const hideKey = () => 'bunutan_hide_' + uid + '_' + sid;
+let subShow = false, subPick = '', subTimer = 0, subIv = 0, subRolling = false;
+let hidePick = false, wishImg = '', chatImg = {g: '', r: ''}, lightbox = '';
+let myKeys = null, myPick = null, askPw = null, revealed = {}, pwBusy = false;   /* password lock: kept in memory only */
+let adminKey = null, allPicks = null;   /* exchange-date reveal: kept in memory only */
+let skullOpen = false, skullOk = false, loopSel = [], loopClose = true;   /* assigned-draws panel: kept in memory only */
+const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
+const info = () => ses && ses.info;
+const myName = () => (user && (user.displayName || user.email)) || 'Google user';
+const baseUrl = () => location.origin + location.pathname;
+const wishItems = p => Object.entries((p && p.wishlist) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (a.at || 0) - (b.at || 0));
+const safeUrl = u => { u = (u || '').trim(); if (!u) return ''; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href.slice(0, 300) : ''; } catch(e){ return ''; } };
+
+/* ---------- database (Firebase Realtime Database REST, with Google ID token) ---------- */
+/* ---------- DEMO backend: a Firebase-like tree kept in localStorage (shared by every tab on this page) ---------- */
+const DB_KEY = 'bunutan_demo_db';
+const loadDB = () => { try { return JSON.parse(localStorage.getItem(DB_KEY) || '{}') || {}; } catch(e){ return {}; } };
+const saveDB = db => { try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e){} };
+const dclone = v => (v === undefined || v === null) ? null : JSON.parse(JSON.stringify(v));
+async function callRaw(method, path, body){
+  await sleep(30);
+  const segs = path.split('/').filter(Boolean), db = loadDB();
+  const at = () => { let o = db; for (const k of segs) { if (o == null || typeof o !== 'object') return null; o = o[k]; } return o === undefined ? null : o; };
+  const parent = () => { let o = db; for (let i = 0; i < segs.length - 1; i++) { if (o[segs[i]] == null || typeof o[segs[i]] !== 'object') o[segs[i]] = {}; o = o[segs[i]]; } return o; };
+  const last = segs[segs.length - 1];
+  if (method === 'GET') return dclone(at());
+  if (method === 'DELETE') { delete parent()[last]; saveDB(db); return null; }
+  const val = dclone(body);
+  if (method === 'PUT') { if (val === null) delete parent()[last]; else parent()[last] = val; }
+  else if (method === 'PATCH') {
+    const p = parent(); if (p[last] == null || typeof p[last] !== 'object') p[last] = {};
+    for (const [k, v] of Object.entries(val || {})) { if (v === null) delete p[last][k]; else p[last][k] = v; }
+  }
+  saveDB(db); return null;
+}
+const dbGet = p => callRaw('GET', 'bunutan/' + p), dbPut = (p, b) => callRaw('PUT', 'bunutan/' + p, b), dbPatch = (p, b) => callRaw('PATCH', 'bunutan/' + p, b), dbDel = p => callRaw('DELETE', 'bunutan/' + p);
+const uPath = p => 'bunutan_users/' + uid + '/' + p;
+const mineKey = () => 'bunutan_mine_' + uid;
+
+function readHash(){ const q = new URLSearchParams(location.hash.slice(1)); sid = q.get('s'); key = q.get('k'); }
+function keepInputs(){ const o = {}; root.querySelectorAll('input,textarea,select').forEach(e => { if (e.id) o[e.id] = e.value; }); return o; }
+function restoreInputs(o){ for (const k in o) { const e = document.getElementById(k); if (e) e.value = o[k]; } }
+
+/* ---------- drum roll (Web Audio, no files needed) ---------- */
+function drumRoll(ms){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const none = {stop(){}};
+  if (!soundOn || !AC) return none;
+  let ctx; try { ctx = new AC(); } catch(e){ return none; }
+  if (ctx.resume) ctx.resume();
+  const sr = ctx.sampleRate, buf = ctx.createBuffer(1, sr * 2, sr), d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const master = ctx.createGain(); master.gain.value = 0.8; master.connect(ctx.destination);
+  const now = ctx.currentTime + 0.05, dur = ms / 1000;
+  const tap = (at, vol) => {
+    const s = ctx.createBufferSource(); s.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500 + Math.random() * 700; bp.Q.value = 0.8;
+    const g = ctx.createGain(); g.gain.setValueAtTime(vol, at); g.gain.exponentialRampToValueAtTime(0.001, at + 0.09);
+    s.connect(bp); bp.connect(g); g.connect(master); s.start(at, Math.random() * 1.5); s.stop(at + 0.1);
+    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(190, at); o.frequency.exponentialRampToValueAtTime(110, at + 0.08);
+    const og = ctx.createGain(); og.gain.setValueAtTime(vol * 0.5, at); og.gain.exponentialRampToValueAtTime(0.001, at + 0.1);
+    o.connect(og); og.connect(master); o.start(at); o.stop(at + 0.11);
+  };
+  let t = 0;
+  while (t < dur) { const p = t / dur; tap(now + t, 0.1 + 0.6 * p * p); t += (0.11 - 0.07 * p) * (0.85 + Math.random() * 0.3); }
+  const end = now + dur;
+  const k = ctx.createOscillator(); k.type = 'sine'; k.frequency.setValueAtTime(140, end); k.frequency.exponentialRampToValueAtTime(40, end + 0.35);
+  const kg = ctx.createGain(); kg.gain.setValueAtTime(1, end); kg.gain.exponentialRampToValueAtTime(0.001, end + 0.4);
+  k.connect(kg); kg.connect(master); k.start(end); k.stop(end + 0.45);
+  const c = ctx.createBufferSource(); c.buffer = buf;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 4500;
+  const cg = ctx.createGain(); cg.gain.setValueAtTime(0.7, end); cg.gain.exponentialRampToValueAtTime(0.001, end + 1.4);
+  c.connect(hp); hp.connect(cg); cg.connect(master); c.start(end); c.stop(end + 1.5);
+  setTimeout(() => { try { ctx.close(); } catch(e){} }, ms + 2400);
+  return { stop(){ try { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0, ctx.currentTime, 0.03); setTimeout(() => { try { ctx.close(); } catch(e){} }, 300); } catch(e){} } };
+}
+
+/* ---------- password lock (the database only ever holds ciphertext) ---------- */
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function deriveKeys(pw, saltB64){
+  if (!(window.crypto && crypto.subtle)) throw new Error('nocrypto');
+  const enc = new TextEncoder();
+  const base = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const master = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-256', salt: unb64(saltB64), iterations: 200000}, base, 256);
+  const hk = await crypto.subtle.importKey('raw', master, 'HKDF', false, ['deriveBits']);
+  const sub = async label => new Uint8Array(await crypto.subtle.deriveBits({name: 'HKDF', hash: 'SHA-256', salt: enc.encode('bunutan-v1'), info: enc.encode(label)}, hk, 256));
+  const [a, t, v] = await Promise.all([sub('aes'), sub('tag'), sub('ver')]);
+  return {aes: await crypto.subtle.importKey('raw', a, 'AES-GCM', false, ['encrypt', 'decrypt']), tag: await crypto.subtle.importKey('raw', t, {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']), ver: b64(v)};
+}
+async function sealPick(k, gifteeId){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv}, k.aes, new TextEncoder().encode(JSON.stringify({g: gifteeId}))));
+  return {iv: b64(iv), ct: b64(ct)};
+}
+async function openPick(k, e){
+  try { return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name: 'AES-GCM', iv: unb64(e.iv)}, k.aes, unb64(e.ct)))).g || null; } catch (er) { return null; }
+}
+/* a blind marker saved on the drawn name: only the person who knows the password can recognise it as theirs */
+const tagFor = async (k, pid) => b64(new Uint8Array(await crypto.subtle.sign('HMAC', k.tag, new TextEncoder().encode(sid + '|' + pid))));
+const myG = me => (me && (me.giftee || (me.drewAt ? myPick : null))) || null;   /* me.giftee only exists on old, unlocked draws */
+
+/* ---------- creator view on the gift exchange date (set when the draw is created with a date) ----------
+   Each pick is also sealed with a public key made at creation. The matching private key is stored locked with the creator's
+   admin link secret (the k in the admin link), so the database still only holds ciphertext and participants cannot open it.
+   The app only offers "show all picks" to the admin on or after the exchange date. Before that, the admin can still open
+   one person's pick with that person's own password. The date is enforced by the app, not by the cryptography. */
+const RSA = {name: 'RSA-OAEP', hash: 'SHA-256'};
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
+const pad2 = n => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+const fmtDate = t => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString([], {year: 'numeric', month: 'long', day: 'numeric'}) : String(t || ''); };
+const escrow = () => (info() && info().escrow) || null;
+const dayOf = () => (info() && ISO.test(info().date || '')) ? info().date : '';
+const isRevealDay = () => !!escrow() && !!dayOf() && todayStr() >= dayOf();
+async function makeEscrow(adminSecret, s){
+  const kp = await crypto.subtle.generateKey({name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256'}, true, ['encrypt', 'decrypt']);
+  const pub = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.publicKey)), prv = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.privateKey));
+  const salt = b64(crypto.getRandomValues(new Uint8Array(16))), k = await deriveKeys(adminSecret, salt), iv = crypto.getRandomValues(new Uint8Array(12)), enc = new TextEncoder();
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv, additionalData: enc.encode(s)}, k.aes, enc.encode(prv)));
+  return {pub, s: salt, iv: b64(iv), ct: b64(ct)};
+}
+async function sealForAdmin(ec, gifteeId){
+  const pub = await crypto.subtle.importKey('jwk', JSON.parse(ec.pub), RSA, false, ['encrypt']);
+  return b64(new Uint8Array(await crypto.subtle.encrypt({name: 'RSA-OAEP'}, pub, new TextEncoder().encode(gifteeId))));
+}
+async function openAdminKey(){
+  const ec = escrow(); if (!ec || !key) return null;
+  try {
+    const k = await deriveKeys(key, ec.s);
+    const prv = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name: 'AES-GCM', iv: unb64(ec.iv), additionalData: new TextEncoder().encode(sid)}, k.aes, unb64(ec.ct))));
+    return await crypto.subtle.importKey('jwk', prv, RSA, false, ['decrypt']);
+  } catch (er) { return null; }
+}
+async function refreshAll(){
+  if (!adminKey) return;
+  const out = allPicks || {};
+  for (const p of parts()) {
+    if (!p.encA || out[p.id]) continue;
+    try { out[p.id] = new TextDecoder().decode(await crypto.subtle.decrypt({name: 'RSA-OAEP'}, adminKey, unb64(p.encA))); } catch (er) {}
+  }
+  allPicks = out;
+}
+const seeNote = () => 'The draw creator can see every pick on the gift exchange date (' + esc(fmtDate(dayOf())) + '), not before.';
+const privacyNotice = () => '<div class="notice">' + LOCK + '<div><b>Your pick is private</b>' + (escrow() ? 'Other participants can never see who you pick. ' + seeNote() : 'No one can see who you pick, not even the draw creator.') + ' After you claim your name, you will set a password that locks your pick.</div></div>';
+
+/* ---------- images (compressed in the browser, stored with the data) ---------- */
+function compressImage(file, max){
+  return new Promise((res, rej) => {
+    if (!file || !/^image\//.test(file.type)) return rej(new Error('type'));
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, max / Math.max(im.width, im.height)), w = Math.round(im.width * k), h = Math.round(im.height * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      let q = 0.7, out = c.toDataURL('image/jpeg', q);
+      while (out.length > 140000 && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+      out.length > 220000 ? rej(new Error('big')) : res(out);
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('type')); };
+    im.src = url;
+  });
+}
+const imgTag = (src, cls) => src && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(src) ? '<img class="thumb ' + (cls || '') + '" src="' + src + '" alt="photo" data-act="zoom">' : '';
+const prevTag = (src, act, v) => src ? '<div class="pv-img"><img class="thumb" src="' + src + '" alt="">' + '<button type="button" data-act="' + act + '"' + (v ? ' data-v="' + v + '"' : '') + ' aria-label="Remove photo">&times;</button></div>' : '';
+
+/* ---------- new message notifications ---------- */
+const seenKey = () => 'bunutan_seen_' + uid + '_' + sid;
+const getSeen = () => { try { return JSON.parse(ls.get(seenKey()) || '{}'); } catch(e){ return {}; } };
+const setSeen = (r, t) => { const o = getSeen(); o[r] = Math.max(o[r] || 0, t || 0); ls.set(seenKey(), JSON.stringify(o)); };
+let lastUnread = 0;
+function unreadInfo(){
+  if (!user || !sid || !ses || !loaded || notFound) return {};
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return {};
+  const seen = getSeen(), out = {};
+  const chk = (role, thread, from, label) => {
+    if (!thread) return;
+    const n = chatMsgs(thread).filter(m => m.from === from && (m.at || 0) > (seen[role] || 0));
+    if (n.length) out[role] = {n: n.length, last: n[n.length - 1].at, label};
+  };
+  const mg = myG(me); if (mg) { const g = ps.find(p => p.id === mg); chk('g', mg, 'giftee', 'Reply from ' + (g ? g.name : 'your giftee')); }
+  chk('r', me.id, 'giver', 'Message from your Secret Santa');
+  return out;
+}
+function renderNotif(){
+  let el = document.getElementById('notif');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'notif'; el.className = 'notifs'; document.body.appendChild(el);
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-n]'); if (!b) return;
+      const u = unreadInfo();
+      if (b.dataset.n === 'x') { Object.entries(u).forEach(([r, x]) => setSeen(r, x.last)); renderNotif(); return; }
+      const r = b.dataset.n; if (u[r]) setSeen(r, u[r].last);
+      if (isAdmin && tab !== 'me') tab = 'me';
+      render();
+      const t = document.getElementById('cl-' + r); if (t) t.scrollIntoView({behavior: 'smooth', block: 'center'});
+    });
+  }
+  const u = unreadInfo(), ae = document.activeElement;
+  for (const r of ['g', 'r']) if (u[r] && ae && ae.id === 'cm' + r && !document.hidden) { setSeen(r, u[r].last); delete u[r]; }
+  const total = Object.values(u).reduce((a, x) => a + x.n, 0);
+  document.title = (total ? '(' + total + ') ' : '') + 'Bunutan';
+  if (total > lastUnread && document.hidden) { try { if (window.Notification && Notification.permission === 'granted') new Notification('Bunutan', {body: 'You have a new chat message.'}); } catch(e){} }
+  lastUnread = total;
+  el.innerHTML = Object.entries(u).map(([r, x]) => '<div class="notif" data-n="' + r + '"><span class="dot"></span><div><b>New chat' + (x.n > 1 ? ' (' + x.n + ')' : '') + '</b>' + esc(x.label) + '</div><button class="x" data-n="x" aria-label="Dismiss">&times;</button></div>').join('');
+}
+
+/* ---------- auth ---------- */
+async function signIn(){ setDemoUser('demo-host'); }
+const themeName = () => !user ? 'forest' : (!sid ? newTheme : ((loaded && ses && ses.info && ses.info.theme) || 'forest'));
+function applyTheme(){
+  const t = THEMES[themeName()] ? themeName() : 'forest';
+  if (document.documentElement.dataset.theme !== t) {
+    document.documentElement.dataset.theme = t;
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = THEMES[t].bar;
+    favLink.href = 'data:image/svg+xml,' + encodeURIComponent(faviconSvg(t));
+  }
+}
+const THEME_OPTS = [['forest', 'Green &amp; gold', 'linear-gradient(135deg,#1b3a2f 0 62%,#d7c27f 62% 100%)'], ['halloween', 'Purple &amp; pumpkin', 'linear-gradient(135deg,#1a1024 0 62%,#ff8a1f 62% 100%)']];
+function themePicker(){
+  return '<label>Theme</label><div class="themes">' + THEME_OPTS.map(o => '<button type="button" class="theme-opt' + (newTheme === o[0] ? ' sel' : '') + '" data-act="theme" data-v="' + o[0] + '"><span class="sw" style="background:' + o[2] + '"></span><b>' + THEMES[o[0]].name + '</b><small>' + o[1] + '</small></button>').join('') + '</div>';
+}
+
+/* ---------- views ---------- */
+function nav(){
+  let r = '';
+  if (user) r = (sid ? '<a class="nl" href="' + baseUrl() + '">All draws</a>' : '') + (user.photoURL ? '<img src="' + esc(user.photoURL) + '" alt="" referrerpolicy="no-referrer">' : '') + '<span class="nl nm">' + esc(myName()) + '</span><button class="nl" data-act="signout">Sign out</button>';
+  return '<nav class="nav"><a class="brand" href="' + baseUrl() + '">' + giftSvg(30) + '<span><b>Bunutan</b><small>Gift draw</small></span></a><div class="r">' + r + '</div></nav>';
+}
+
+function render(){
+  if (busy) return;
+  applyTheme();
+  const keep = keepInputs();
+  let h = '';
+  if (!CONFIGURED) h = viewGuide();
+  else if (!authReady) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
+  else if (!user) h = viewSignIn();
+  else if (!sid) h = viewHome();
+  else if (notFound) h = '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
+  else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
+  else h = viewHeader() + (isAdmin ? viewTabs() + viewSkull() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
+  root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h + (lightbox ? '<div class="lb" data-act="closelb"><img src="' + lightbox + '" alt=""></div>' : '');
+  restoreInputs(keep);
+  renderNotif();
+  maybeSub();
+  root.querySelectorAll('.chat').forEach(c => { c.scrollTop = c.scrollHeight; });
+}
+
+function viewSignIn(){
+  return '<div class="hero"><div class="panel"></div><div class="txt"><h1>Draw<br>a Name,<br>Give a Gift</h1><p>Sign in with Google to join a gift draw or create one for your group.</p><button class="btn" data-act="signin"><span class="gicon">' + GLOGO + '</span>Sign in with Google</button></div></div>';
+}
+
+function viewGuide(){
+  return '<header><div><h1>One-time setup</h1><div class="mut">A free Firebase project is needed for Google sign-in and the shared lists.</div></div></header>' +
+  '<div class="card"><ol style="margin:0;padding-left:20px;display:grid;gap:8px"><li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> and click <b>Add project</b>.</li>' +
+  '<li><b>Build &gt; Authentication &gt; Get started &gt; Sign-in method &gt; Google &gt; Enable</b>.</li>' +
+  '<li><b>Authentication &gt; Settings &gt; Authorized domains</b>: add <code>yourname.github.io</code>.</li>' +
+  '<li><b>Build &gt; Realtime Database &gt; Create Database</b>. In the <b>Rules</b> tab, paste this and Publish:<pre>{\n  "rules": {\n    "bunutan": {\n      "$sid": { ".read": "auth != null", ".write": "auth != null" }\n    },\n    "bunutan_users": {\n      "$uid": {\n        ".read": "auth != null &amp;&amp; auth.uid === $uid",\n        ".write": "auth != null &amp;&amp; auth.uid === $uid"\n      }\n    }\n  }\n}</pre></li>' +
+  '<li>Project settings &gt; Your apps &gt; Web: copy the <code>firebaseConfig</code> values (plus the <code>databaseURL</code> from the Realtime Database Data tab) into <code>FIREBASE_CONFIG</code> at the top of <code>index.html</code>.</li></ol></div>';
+}
+
+function viewHome(){
+  let h = '<header><div><h1>Your Gift Draws</h1><div class="mut">Create a draw and share it with your group</div></div></header>';
+  h += '<div class="card"><h2>Your draws</h2>';
+  if (homeDraws === null) h += '<p class="mut" style="margin:0">Loading...</p>';
+  else if (!homeDraws.length) h += '<p class="mut" style="margin:0">You have not created any draws yet. Create your first one below.</p>';
+  else h += homeDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b>' + (m.createdAt ? '<div class="mut">Created ' + fmt(m.createdAt) + '</div>' : '') + '</div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Open</a></div>').join('');
+  h += '</div>' + joinedCard() + '<div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
+  '<label for="d">Gift exchange date (optional)</label><input id="d" type="date" min="' + todayStr() + '">' +
+  '<div class="mut" style="margin-top:6px">If you set a date, you (the creator) can see everyone\'s pick on that date. Before then, only with a person\'s own password. Participants are told this before they claim a name. The date can be moved later, but not earlier.</div>' +
+  '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
+  '<label for="g">Gift theme (optional)</label><input id="g" maxlength="80" placeholder="e.g. Something useful">' +
+  '<label for="sb">Sub-themes (optional, one per line)</label><textarea id="sb" style="min-height:90px" placeholder="Something you can eat&#10;Something under your desk&#10;Something that smells good"></textarea>' +
+  themePicker() +
+  '<label for="n">Participants (one name per line, minimum 3)</label><textarea id="n" placeholder="Maria&#10;Juan&#10;Ana"></textarea>' +
+  '<p style="margin:14px 0 0"><button class="btn fill" data-act="create">Create draw</button></p></div>';
+  return h;
+}
+
+function viewHeader(){
+  const i = info(), bits = [fmtDate(i.date), i.giftTheme ? 'Gift theme: ' + i.giftTheme : '', i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
+  return '<header><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
+}
+/* ---------- assigned draws (admin only, behind the skull) ---------- */
+const SKULL_HASH = 'e98ef513dc73f745f7df16c5488405b45d210c532d2239e7da6c916e2c9cbc91';   /* SHA-256 of the panel password; a UI gate only, not security */
+const assigns = () => (info() && info().assign) || {};
+const isTk = p => !!(p.taken || p.takenBy);
+function assignProblem(map){
+  const ps = parts(), byId = Object.fromEntries(ps.map(p => [p.id, p])), cur = assigns(), nm = id => byId[id] ? byId[id].name : '?';
+  const seen = {};
+  for (const [g, t] of Object.entries(map)) {
+    if (!byId[g] || !byId[t]) return 'One of those names is no longer in the draw.';
+    if (g === t) return nm(g) + ' cannot draw themselves.';
+    if (seen[t]) return nm(t) + ' can only be assigned to one person.';
+    seen[t] = g;
+    if (cur[g] !== t) {
+      if (byId[g].drewAt) return nm(g) + ' has already drawn.';
+      if (isTk(byId[t])) return nm(t) + ' has already been drawn by someone.';
+    }
+  }
+  const G = ps.filter(p => !p.drewAt && !map[p.id]), R = ps.filter(p => !isTk(p) && !seen[p.id]);
+  if (G.length === 1 && R.length === 1 && G[0].id === R[0].id) return 'That would leave ' + nm(G[0].id) + ' with only themselves to draw.';
+  return '';
+}
+async function saveAssign(map){
+  const pr = assignProblem(map);
+  if (pr) { msg = pr; render(); return false; }
+  try {
+    if (Object.keys(map).length) await dbPut(sid + '/info/assign', map); else await dbDel(sid + '/info/assign');
+    msg = ''; await load(true); return true;
+  } catch (e) { msg = 'Could not save. Please try again.'; render(); return false; }
+}
+async function unlockSkull(){
+  const e = $('#skp'), v = e ? e.value : '';
+  if (e) e.value = '';
+  if ((await sha(v)) === SKULL_HASH) { skullOk = true; msg = ''; } else msg = 'Wrong password.';
+  render();
+}
+function closeSkull(){ skullOpen = false; skullOk = false; loopSel = []; loopClose = true; msg = ''; render(); }
+async function addAssign(){
+  const g = ($('#asg') || {}).value, t = ($('#ast') || {}).value;
+  if (!g || !t) { msg = 'Choose a giver and who they will draw.'; return render(); }
+  const map = Object.assign({}, assigns()); map[g] = t;
+  if (await saveAssign(map)) { const a = $('#asg'), b = $('#ast'); if (a) a.value = ''; if (b) b.value = ''; }
+}
+async function delAssign(g){
+  const map = Object.assign({}, assigns()), p = parts().find(x => x.id === g);
+  if (!map[g] || (p && p.drewAt)) return;
+  delete map[g]; await saveAssign(map);
+}
+async function clearAssign(){
+  const byId = Object.fromEntries(parts().map(p => [p.id, p])), map = {};
+  for (const [g, t] of Object.entries(assigns())) if (byId[g] && byId[g].drewAt) map[g] = t;
+  await saveAssign(map);
+}
+async function makeLoop(){
+  const names = loopSel.slice(), n = names.length, cur = assigns(), byId = Object.fromEntries(parts().map(p => [p.id, p]));
+  if (n < 2) { msg = 'Tap at least two names, in order.'; return render(); }
+  const map = Object.assign({}, cur);
+  for (let i = 0; i < n; i++) {
+    const t = i < n - 1 ? names[i + 1] : (loopClose ? names[0] : null);
+    if (!t) continue;
+    if (cur[names[i]] && cur[names[i]] !== t) { msg = (byId[names[i]] ? byId[names[i]].name : '?') + ' already has an assignment. Remove it first.'; return render(); }
+    map[names[i]] = t;
+  }
+  if (await saveAssign(map)) { loopSel = []; render(); }
+}
+function viewSkull(){
+  if (!skullOpen) return '';
+  if (!skullOk) return '<div class="card"><label for="skp" style="margin-top:0">Password</label><div class="lk"><input id="skp" type="password" autocomplete="off" placeholder="Password"><button class="btn sm" data-act="skunlock">Open</button></div></div>';
+  const ps = parts(), byId = Object.fromEntries(ps.map(p => [p.id, p])), cur = assigns(), nm = id => byId[id] ? byId[id].name : '?';
+  const used = new Set(Object.values(cur));
+  const givers = ps.filter(p => !p.drewAt && !cur[p.id]), recv = ps.filter(p => !isTk(p) && !used.has(p.id));
+  const opts = (arr, ph) => '<option value="">' + ph + '</option>' + arr.map(p => '<option value="' + p.id + '">' + esc(p.name) + '</option>').join('');
+  let h = '<div class="card"><h2>Debugger</h2>';
+  const rules = Object.entries(cur);
+  if (!rules.length) h += '<p class="mut" style="margin:0">No assignments yet.</p>';
+  rules.forEach(([g, t]) => {
+    const done = !!(byId[g] && byId[g].drewAt);
+    h += '<div class="row"><div class="g"><b>' + esc(nm(g)) + '</b> &rarr; ' + esc(nm(t)) + '</div>' + (done ? '<span class="mut">already drawn</span>' : '<button class="btn ghost sm" data-act="asgdel" data-v="' + g + '">Remove</button>') + '</div>';
+  });
+  h += '</div><div class="card"><h2>Add an assignment</h2><label for="asg">Giver</label><select id="asg">' + opts(givers, 'Choose giver...') + '</select><label for="ast">Will draw</label><select id="ast">' + opts(recv, 'Choose giftee...') + '</select><p style="margin:14px 0 0"><button class="btn fill sm" data-act="asgadd">Add assignment</button></p></div>';
+  const names = loopSel.map(nm).map(esc);
+  if (loopClose && names.length >= 2) names.push(names[0]);
+  h += '<div class="card"><h2>Loop or chain</h2><p class="mut" style="margin:0 0 8px">Tap names in order. Each one draws the next. With the loop on, the last draws the first.</p><div class="asg-chips">' +
+    ps.map(p => { const i = loopSel.indexOf(p.id); return '<button class="btn ' + (i >= 0 ? 'fill' : 'ghost') + ' sm" data-act="loopadd" data-v="' + p.id + '">' + (i >= 0 ? (i + 1) + '. ' : '') + esc(p.name) + '</button>'; }).join('') + '</div>' +
+    '<div class="mut" style="margin:0 0 10px">' + (names.length ? names.join(' &rarr; ') : 'Nothing selected yet.') + '</div>' +
+    '<div class="mut" style="margin:0 0 6px">Close the loop?</div><div class="asg-chips"><button class="btn ' + (loopClose ? 'fill' : 'ghost') + ' sm" data-act="loopclose" data-v="1">Yes</button><button class="btn ' + (loopClose ? 'ghost' : 'fill') + ' sm" data-act="loopclose" data-v="0">No</button></div>' +
+    '<button class="btn fill sm" data-act="loopmake">Create loop</button> <button class="btn ghost sm" data-act="loopclear">Clear selection</button></div>';
+  h += '<div class="card"><button class="btn ghost sm" data-act="asgclear">Remove all undrawn assignments</button> <button class="btn ghost sm" data-act="skclose">Lock and close</button></div>';
+  return h;
+}
+function viewTabs(){
+  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button><button class="tab sk ' + (skullOpen ? 'on' : '') + '" data-act="skull" aria-label="Debugger">' + SKULL + '</button></div>';
+}
+
+function viewDash(){
+  const ps = parts(), total = ps.length, claimed = ps.filter(p => p.claimedBy), drawn = ps.filter(p => p.drewAt);
+  const waiting = claimed.filter(p => !p.drewAt), free = ps.filter(p => !p.claimedBy), byId = Object.fromEntries(ps.map(p => [p.id, p]));
+  let h = '<div class="card"><h2>Send to participants</h2><div class="lk"><input id="pl" readonly value="' + esc(baseUrl() + '#s=' + sid) + '"><button class="btn sm" data-act="copy" data-v="pl">Copy</button></div>' +
+  '<h2 style="margin-top:12px">Your admin link (keep it private)</h2><div class="lk"><input id="al" readonly value="' + esc(baseUrl() + '#s=' + sid + '&k=' + key) + '"><button class="btn sm" data-act="copy" data-v="al">Copy</button></div><div class="mut">This draw is also saved under "All draws" on your account.</div></div>';
+  h += '<div class="stats"><div class="stat"><b>' + claimed.length + '/' + total + '</b><span class="mut">Claimed</span></div><div class="stat"><b>' + drawn.length + '/' + total + '</b><span class="mut">Drawn</span></div><div class="stat"><b>' + free.length + '</b><span class="mut">Unclaimed</span></div></div>';
+  h += '<div class="card"><div class="bar"><i style="width:' + (total ? Math.round(drawn.length / total * 100) : 0) + '%"></i></div></div>';
+  h += '<div class="card"><h2>Already drawn (' + drawn.length + ')</h2>';
+  if (!drawn.length) h += '<p class="mut" style="margin:0">Nobody yet. Every pick is locked with that person\'s own password.</p>';
+  if (drawn.length) h += '<p class="mut" style="margin:0 0 4px">Every pick is locked with that person\'s own password. You can only reveal one if they give you their password.' + (escrow() ? ' On the gift exchange date you can see all picks below.' : '') + '</p>';
+  drawn.sort((a, b) => a.drewAt - b.drewAt).forEach(p => {
+    const legacy = !!p.giftee, rv = legacy ? (shown[p.id] ? p.giftee : null) : revealed[p.id], g = rv ? byId[rv] : null;
+    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Drew ' + fmt(p.drewAt) + '</div></div><div class="gift">' + (rv ? '&rarr; ' + esc(g ? g.name : '?') : '&rarr; ' + (legacy ? '******' : LOCK)) + '</div><button class="eye" data-act="eye" data-v="' + p.id + '" aria-label="' + (rv ? 'Hide pick' : 'Reveal pick') + '">' + (rv ? EYEOFF : EYE) + '</button></div>';
+    if (askPw === p.id) h += '<div class="pwask"><label for="apw">Enter ' + esc(p.name) + '\'s password to reveal</label><div class="lk"><input id="apw" type="password" autocomplete="off" placeholder="Their password"><button class="btn sm" data-act="areveal">Reveal</button><button class="btn ghost sm" data-act="acancel">Cancel</button></div></div>';
+  });
+  h += '</div>' + viewRevealAll(ps, byId);
+  h += '<div class="card"><h2>Claimed, not drawn yet (' + waiting.length + ')</h2>';
+  if (!waiting.length) h += '<p class="mut" style="margin:0">None.</p>';
+  else h += '<p class="mut" style="margin:0 0 4px">If someone picked the wrong name or used the wrong Google account, release the name so it can be claimed again. They can then set a new password. This is not possible after they have drawn.</p>';
+  waiting.forEach(p => { h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b><div class="mut">' + (p.claimedName ? esc(p.claimedName) + ' &middot; ' : '') + 'Claimed ' + fmt(p.claimedAt) + ' &middot; ' + (p.pw ? 'Password set' : 'No password yet') + '</div></div><button class="btn ghost sm" data-act="release" data-v="' + p.id + '">Release</button></div>'; });
+  h += '</div><div class="card"><h2>Not claimed yet (' + free.length + ')</h2>' + (free.length ? '<div class="chips">' + free.map(p => '<span class="chip">' + esc(p.name) + '</span>').join('') + '</div>' : '<p class="mut" style="margin:0">Every name has been claimed.</p>') + '</div>';
+  const inf = info() || {};
+  h += '<div class="card"><h2>Draw details</h2><p class="mut" style="margin:0 0 4px">Changes show up for everyone, even after they have drawn.</p>' +
+  '<label for="et">Gift theme</label><input id="et" maxlength="80" placeholder="e.g. Something useful" value="' + esc(inf.giftTheme || '') + '">' +
+  '<label for="eb">Budget</label><input id="eb" maxlength="40" placeholder="e.g. $20" value="' + esc(inf.budget || '') + '">' +
+  (escrow() ? '<label for="ed">Gift exchange date</label><input id="ed" type="date" min="' + esc(dayOf()) + '" value="' + esc(dayOf()) + '"><div class="mut" style="margin-top:6px">You can move the date later, but not earlier.</div>' : '<label for="ed">Gift exchange date</label><input id="ed" maxlength="60" placeholder="e.g. Dec 20, 2026" value="' + esc(inf.date || '') + '">') +
+  '<p style="margin:14px 0 0"><button class="btn fill" data-act="saveinfo">Save details</button></p></div>';
+  h += '<div class="card"><h2>Quotes / sub-themes (' + subs().length + ')</h2><p class="mut" style="margin:0 0 6px">More specific hints or random lines. Everyone in the draw can add their own too. After drawing, each person sees one picked at random after 5 seconds.</p>' +
+  (subs().length ? subs().map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') : '<p class="mut" style="margin:0 0 6px">None yet.</p>') +
+  '<div class="lk" style="margin-top:12px"><input id="addsub" maxlength="120" placeholder="Add a quote or sub-theme..."><button class="btn" data-act="subadd" data-v="addsub">Add</button></div></div>';
+  h += '<div class="card"><h2>Add a participant</h2><div class="lk"><input id="addn" placeholder="Name"><button class="btn" data-act="add">Add</button></div></div>';
+  h += '<div class="card"><h2>Delete this draw</h2>' + (confirmDel ? '<p class="mut" style="margin:0 0 10px">This permanently deletes the draw, all picks, and all wishlists.</p><button class="btn danger sm" data-act="delyes">Yes, delete</button> <button class="btn ghost sm" data-act="delno">Cancel</button>' : '<button class="btn ghost sm" data-act="delask">Delete draw</button>') + '</div>';
+  return h;
+}
+
+function viewRevealAll(ps, byId){
+  if (!escrow()) return '';
+  if (!isRevealDay()) { adminKey = null; allPicks = null; }
+  let h = '<div class="card"><h2>All picks</h2>';
+  if (!isRevealDay()) return h + '<p class="mut" style="margin:0">' + LOCK + ' Locked until the gift exchange date, <b>' + esc(fmtDate(dayOf())) + '</b>. Until then you can only open one person\'s pick with their password.</p></div>';
+  if (!allPicks) return h + '<p class="mut" style="margin:0 0 12px">It is the gift exchange date. You can now see who picked whom.</p><button class="btn sm" data-act="xshow">Show all picks</button></div>';
+  ps.filter(p => p.claimedBy || p.drewAt).forEach(p => {
+    const g = allPicks[p.id] ? byId[allPicks[p.id]] : null;
+    h += '<div class="row"><div class="g"><b>' + esc(p.name) + '</b></div><div class="gift">' + (allPicks[p.id] ? '&rarr; ' + esc(g ? g.name : '?') : (p.drewAt ? '&rarr; n/a' : '<span class="mut">Not drawn yet</span>')) + '</div></div>';
+  });
+  return h + '<p style="margin:12px 0 0"><button class="btn ghost sm" data-act="xhide">Hide all</button></p></div>';
+}
+
+function viewWishEditor(me){
+  const items = wishItems(me);
+  let h = '<div class="card"><h2>My wishlist</h2><p class="mut" style="margin:0 0 8px">Add gift ideas. The person who draws your name will see this list.</p>';
+  if (!items.length) h += '<p class="mut" style="margin:0 0 8px">Nothing here yet.</p>';
+  items.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div><button class="btn ghost sm" data-act="wdel" data-v="' + w.id + '">Remove</button></div>'; });
+  h += '<label for="wt">Gift idea</label><input id="wt" maxlength="120" placeholder="e.g. Scented candle, size M hoodie, coffee beans">' +
+  '<label for="wu">Link (optional)</label><input id="wu" maxlength="300" placeholder="https://...">' +
+  '<label>Photo (optional)</label><label class="filebtn" style="margin:0">Add photo<input type="file" id="wf" accept="image/*"></label>' + prevTag(wishImg, 'wimgx') +
+  '<p style="margin:12px 0 0"><button class="btn fill" data-act="wadd">Add to wishlist</button></p></div>';
+  return h;
+}
+
+const subs = () => Object.entries((info() && info().subthemes) || {}).map(([id, v]) => ({id, t: String((v && typeof v === 'object') ? (v.t || '') : v), by: (v && typeof v === 'object') ? v.by : null})).filter(x => x.t).sort((a, b) => a.id < b.id ? -1 : 1);
+function giftPerks(){
+  const i = info() || {}, a = [], sa = subs();
+  if (i.giftTheme) a.push('<div class="perk"><div class="pl">Gift theme</div><div class="pv">' + esc(i.giftTheme) + '</div></div>');
+  if (i.budget) a.push('<div class="perk"><div class="pl">Budget</div><div class="pv">' + esc(i.budget) + '</div></div>');
+  if (sa.length) a.push(subShow
+    ? '<div class="perk sub">' + (sa.length > 1 ? '<div class="pl" style="margin:0 0 2px"><button class="btn ghost" data-act="subshuffle">Shuffle</button></div>' : '') + '<div class="pv" id="subtxt">' + esc(subPick) + '</div></div>'
+    : '<div class="perk sub"><div class="pv spin" style="display:inline-block">...</div></div>');
+  return a.length ? '<div class="perks' + (a.length === 1 ? ' one' : '') + '">' + a.join('') + '</div>' : '';
+}
+function viewSubAdd(){
+  const mine = subs().filter(x => x.by === uid);
+  return '<div class="card"><h2>Add your own quote</h2>' +
+  mine.map(x => '<div class="row"><div class="g">' + esc(x.t) + '</div><button class="btn ghost sm" data-act="subdel" data-v="' + x.id + '">Remove</button></div>').join('') +
+  '<div class="lk" style="margin-top:12px"><input id="addsubme" maxlength="120" placeholder="Write your quote..."><button class="btn" data-act="subadd" data-v="addsubme">Add</button></div></div>';
+}
+function subTick(){
+  if (document.hidden || subRolling) return;
+  const a = subs(); if (a.length < 2) return;
+  let n, k = 0; do { n = a[Math.floor(Math.random() * a.length)].t; k++; } while (n === subPick && k < 20);
+  subPick = n;
+  const e = $('#subtxt'); if (e) { e.textContent = n; e.style.animation = 'none'; void e.offsetWidth; e.style.animation = ''; }
+}
+function maybeSub(){
+  if (subShow || subTimer || !loaded || !user || !sid || !ses) return;
+  const me = parts().find(p => p.claimedBy === uid);
+  if (!me || !me.drewAt || !subs().length) return;
+  subTimer = setTimeout(() => { subTimer = 0; const a = subs(); if (!a.length) return; subPick = a[Math.floor(Math.random() * a.length)].t; subShow = true; render(); clearInterval(subIv); subIv = setInterval(subTick, 4000); }, 5000);
+}
+async function shuffleSub(){
+  const a = subs(); if (!a.length || subRolling) return; subRolling = true;
+  const t0 = Date.now(); let n = subPick;
+  while (Date.now() - t0 < 900) { n = a[Math.floor(Math.random() * a.length)].t; const e = $('#subtxt'); if (e) e.textContent = n; await sleep(90); }
+  if (a.length > 1) { let k = 0; do { n = a[Math.floor(Math.random() * a.length)].t; k++; } while (n === subPick && k < 20); }
+  subPick = n; subRolling = false; render();
+}
+async function addSub(inpId){
+  const inp = $('#' + (inpId || 'addsub')), v = ((inp && inp.value) || '').trim().slice(0, 120); if (!v) return;
+  if (subs().length >= 50) { msg = 'You can add up to 50 sub-themes.'; return render(); }
+  try { await dbPut(sid + '/info/subthemes/s' + Date.now().toString(36) + rnd(2), {t: v, by: uid}); inp.value = ''; msg = ''; } catch (e) { msg = 'Could not add the sub-theme. Please try again.'; }
+  await load(true);
+}
+async function delSub(id){
+  const x = subs().find(z => z.id === id); if (!x || (!isAdmin && x.by !== uid)) return;
+  try { await dbDel(sid + '/info/subthemes/' + id); msg = ''; } catch (e) { msg = 'Could not remove the sub-theme. Please try again.'; }
+  await load(true);
+}
+function subMap(){
+  const lines = [...new Set((($('#sb') && $('#sb').value) || '').split('\n').map(x => x.trim().slice(0, 120)).filter(Boolean))].slice(0, 50), o = {};
+  lines.forEach((t, k) => { o['s' + String(k).padStart(3, '0')] = t; });
+  return lines.length ? o : undefined;
+}
+
+function viewSetPw(me){
+  return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><h2>Set your password</h2>' +
+  '<div class="notice">' + LOCK + '<div><b>' + (escrow() ? 'Your pick is private' : 'No one can see who you pick') + '</b>' + (escrow() ? 'Your pick is locked with this password. Other participants can never see it. ' + seeNote() + ' Before that, the creator needs your password.' : 'Your pick is locked with this password, so not even the draw creator can see it unless you give them your password.') + ' You need it to draw and to see your pick later. If you forget it, your pick cannot be recovered.</div></div>' +
+  '<div style="text-align:left"><label for="pw1">Password (at least 6 characters)</label><input id="pw1" type="password" autocomplete="new-password" autocapitalize="off" maxlength="64"><label for="pw2">Confirm password</label><input id="pw2" type="password" autocomplete="new-password" autocapitalize="off" maxlength="64"></div>' +
+  '<p style="margin:16px 0 0"><button class="btn fill" data-act="setpw">Save password</button></p></div>';
+}
+function viewUnlock(me, mode){
+  const dr = mode === 'draw';
+  return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">' + (dr ? 'Welcome back,' : 'Hi,') + '</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><h2>' + (dr ? 'Enter your password to draw' : 'Your pick is locked') + '</h2>' +
+  '<p class="mut" style="margin:0 0 4px">' + (dr ? 'Your password keeps your pick private.' : 'Enter your password to see who you are giving a gift to. No one else can see it.') + '</p>' +
+  '<div style="text-align:left"><label for="upw">Password</label><input id="upw" type="password" autocomplete="current-password" autocapitalize="off" maxlength="64"></div>' +
+  '<p style="margin:16px 0 0"><button class="btn fill" data-act="unlock">Unlock</button></p></div>';
+}
+
+function viewMe(){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid);
+  if (!me) {
+    let h = '<div class="card"><h2>Who are you on the list?</h2><p class="mut" style="margin:0 0 12px">You are signed in as <b>' + esc(myName()) + '</b>. Pick your name from the list. A name can only be claimed once and stays linked to your Google account.</p>' + privacyNotice() + '<div class="names">';
+    ps.forEach(p => { h += '<button class="name ' + (p.claimedBy ? 'off' : (pending === p.id ? 'sel' : '')) + '" ' + (p.claimedBy ? 'disabled' : 'data-act="pick" data-v="' + p.id + '"') + '>' + esc(p.name) + '</button>'; });
+    h += '</div>';
+    const pp = pending && ps.find(x => x.id === pending);
+    if (pp) h += '<p style="margin:16px 0 0">Are you <b>' + esc(pp.name) + '</b>?</p><p style="margin:8px 0 0"><button class="btn fill" data-act="claim">Yes, that\'s me</button> <button class="btn ghost" data-act="unpick">No</button></p>';
+    return h + '</div>';
+  }
+  if (!me.drewAt) {
+    if (!me.pw) return viewSetPw(me) + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
+    if (!myKeys) return viewUnlock(me, 'draw') + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
+    return '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">Hi,</p><div class="big" style="color:var(--ink);margin-top:0">' + esc(me.name) + '!</div><p class="mut">Ready to draw? The draw takes 5 to 10 seconds, and you can\'t redraw once you have a name.</p><p><button class="btn fill" data-act="draw" style="padding:17px 34px">Draw a name</button></p></div>' + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
+  }
+  const gid = myG(me);
+  if (!gid) return viewUnlock(me, 'view') + viewSubAdd() + viewChats(me, ps) + viewWishEditor(me);
+  const g = ps.find(p => p.id === gid), gw = wishItems(g);
+  let h = '<div class="card center">' + giftSvg(56) + '<p class="mut" style="margin:6px 0 0">You are giving a gift to</p><div class="gname"><div class="big">' + (hidePick ? '&bull;&bull;&bull;&bull;&bull;&bull;' : esc(g ? g.name : '?')) + '</div><button class="eye" data-act="hidepick" aria-label="' + (hidePick ? 'Show name' : 'Hide name') + '" title="' + (hidePick ? 'Show name' : 'Hide name') + '">' + (hidePick ? EYE : EYEOFF) + '</button></div>' + giftPerks() + '<p class="mut" style="margin:14px 0 0">Your pick is saved and locked with your password. ' + (escrow() ? 'Other participants cannot see it. ' + seeNote() : 'No one else can see it.') + ' Keep it secret!</p></div>';
+  h += viewSubAdd() + '<div class="card"><h2>' + esc(g ? g.name : 'Their') + '\'s wishlist</h2>';
+  if (!gw.length) h += '<p class="mut" style="margin:0">They have not added anything yet. Check back later.</p>';
+  gw.forEach(w => { h += '<div class="row"><div class="g">' + esc(w.t) + (w.u ? ' <a href="' + esc(w.u) + '" target="_blank" rel="noopener noreferrer">link</a>' : '') + imgTag(w.i) + '</div></div>'; });
+  return h + '</div>' + viewChats(me, ps) + viewWishEditor(me);
+}
+
+/* ---------- anonymous chat ---------- */
+const chatMsgs = key => Object.entries((((ses && ses.chat) || {})[key]) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (a.at || 0) - (b.at || 0));
+function bubbles(role, ms, other){
+  const mine = role === 'g' ? 'giver' : 'giftee';
+  if (!ms.length) return '<p class="mut" style="margin:0">No messages yet. Say hello!</p>';
+  return ms.map(m => { const me = m.from === mine; return '<div class="bub' + (me ? ' me' : '') + '"><div class="bl">' + (me ? 'You' : esc(other)) + ' &middot; ' + fmt(m.at) + '</div>' + esc(m.t) + imgTag(m.i) + '</div>'; }).join('');
+}
+function chatCard(role, ms, title, hint, other){
+  return '<div class="card"><h2>' + title + '</h2><p class="mut" style="margin:0 0 10px">' + hint + '</p><div class="chat" id="cl-' + role + '">' + bubbles(role, ms, other) + '</div><div class="lk" style="margin-top:12px"><input id="cm' + role + '" maxlength="300" placeholder="Write a message..." autocomplete="off"><button class="btn sm" data-act="csend" data-v="' + role + '">Send</button></div><div style="margin-top:8px"><label class="filebtn" style="margin:0">Attach photo<input type="file" id="cf-' + role + '" accept="image/*"></label></div>' + prevTag(chatImg[role], 'cimgx', role) + '</div>';
+}
+function viewChats(me, ps){
+  let h = '';
+  const gid = myG(me); if (gid) { const g = ps.find(p => p.id === gid), gn = g ? g.name : 'your person'; h += chatCard('g', chatMsgs(gid), 'Chat with ' + esc(gn), 'Your messages show up as "Your Secret Santa", so they will not know it\'s you.', gn); }
+  h += chatCard('r', chatMsgs(me.id), 'Chat with your Secret Santa', 'Message with your "Secret Santa" here.', 'Your Secret Santa');
+  return h;
+}
+function refreshChats(){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return;
+  const g = $('#cl-g'), r = $('#cl-r');
+  const gid = myG(me);
+  if (g && gid) { const gt = ps.find(p => p.id === gid); g.innerHTML = bubbles('g', chatMsgs(gid), gt ? gt.name : 'your person'); g.scrollTop = g.scrollHeight; }
+  if (r) { r.innerHTML = bubbles('r', chatMsgs(me.id), 'Your Secret Santa'); r.scrollTop = r.scrollHeight; }
+}
+async function sendChat(role){
+  const ps = parts(), me = ps.find(p => p.claimedBy === uid); if (!me) return;
+  const inp = $('#cm' + role), t = ((inp && inp.value) || '').trim().slice(0, 300), img = chatImg[role]; if (!t && !img) return;
+  let key, from;
+  if (role === 'g') { key = myG(me); if (!key) return; from = 'giver'; }
+  else { key = me.id; from = 'giftee'; }
+  try { await dbPut(sid + '/chat/' + key + '/m' + Date.now().toString(36) + rnd(3), {from, t, i: img || null, at: Date.now()}); inp.value = ''; chatImg[role] = ''; msg = ''; }
+  catch (e) { msg = 'Could not send your message. Please try again.'; }
+  await load(true);
+  const again = $('#cm' + role); if (again) again.focus();
+}
+
+/* ---------- actions ---------- */
+async function loadHome(){
+  let list = []; try { list = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+  try { const d = await callRaw('GET', uPath('draws')); if (d) Object.entries(d).forEach(([s, v]) => { if (!list.some(x => x.sid === s)) list.push({sid: s, key: v.key, title: v.title, createdAt: v.createdAt}); }); } catch(e){}
+  let joined = [];
+  try {
+    const j = await callRaw('GET', uPath('joined'));
+    if (j) joined = await Promise.all(Object.entries(j).filter(([s]) => !list.some(x => x.sid === s)).map(async ([s, v]) => {
+      let t; try { t = await dbGet(s + '/info/title'); } catch(e){ t = undefined; }
+      if (t === null) { callRaw('DELETE', uPath('joined/' + s)).catch(() => {}); return null; }   /* the draw was deleted */
+      return {sid: s, title: t || v.title, name: v.name, joinedAt: v.joinedAt};
+    }));
+  } catch(e){}
+  joinedDraws = joined.filter(Boolean).sort((a, b) => (b.joinedAt || 0) - (a.joinedAt || 0));
+  homeDraws = list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  render();
+}
+const joinedSaved = {};
+async function rememberJoin(){   /* keeps a draw on the person's account once they hold a name, so it shows under "All draws" without the link */
+  const me = parts().find(p => p.claimedBy === uid), inf = info(), s = sid;
+  if (!uid || !s || !me || !inf || joinedSaved[uid + s]) return;
+  joinedSaved[uid + s] = 1;
+  try { await callRaw('PUT', uPath('joined/' + s), {title: inf.title, name: me.name, joinedAt: me.claimedAt || Date.now()}); } catch(e){ delete joinedSaved[uid + s]; }
+}
+function joinedCard(){
+  if (!joinedDraws.length) return '';
+  return '<div class="card"><h2>Draws you joined</h2>' + joinedDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b><div class="mut">You are ' + esc(m.name) + (m.joinedAt ? ' &middot; Joined ' + fmt(m.joinedAt) : '') + '</div></div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '">Open</a></div>').join('') + '</div>';
+}
+
+async function createSession(){
+  const title = ($('#t').value || '').trim();
+  const names = [...new Set(($('#n').value || '').split('\n').map(s => s.trim()).filter(Boolean))];
+  if (!title) { msg = 'Please enter an event name.'; return render(); }
+  if (names.length < 3) { msg = 'Please enter at least 3 different names.'; return render(); }
+  const date = (($('#d') && $('#d').value) || '').trim();
+  if (date && (!ISO.test(date) || date < todayStr())) { msg = 'The gift exchange date cannot be in the past.'; return render(); }
+  busy = true; msg = '';
+  try {
+    const s = rnd(10), k = rnd(16), p = {}, createdAt = Date.now();
+    const ec = date ? await makeEscrow(k, s) : undefined;
+    names.forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
+    await dbPut(s, {info: {title, date, budget: ($('#b').value || '').trim(), giftTheme: (($('#g') && $('#g').value) || '').trim().slice(0, 80), subthemes: subMap(), createdAt, adminHash: await sha(k), owner: uid, theme: newTheme, escrow: ec}, p});
+    let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+    mine.unshift({sid: s, key: k, title, createdAt}); ls.set(mineKey(), JSON.stringify(mine.slice(0, 50)));
+    try { await callRaw('PUT', uPath('draws/' + s), {title, key: k, createdAt}); } catch(e){}
+    busy = false; location.hash = 's=' + s + '&k=' + k; return;
+  } catch (e) { msg = e.message === 'nocrypto' ? 'Your browser cannot lock picks here. Open this page over https in a recent browser.' : 'Could not save. Check the databaseURL and Rules, then try again.'; }
+  busy = false; render();
+}
+
+async function claim(){
+  const pid = pending; if (!pid) return;
+  try {
+    const fresh = await dbGet(sid + '/p') || {};
+    if (Object.values(fresh).some(p => p.claimedBy === uid)) { pending = null; return load(true); }
+    if (!fresh[pid] || fresh[pid].claimedBy) throw new Error('taken');
+    await dbPatch(sid + '/p/' + pid, {claimedBy: uid, claimedName: myName(), claimedAt: Date.now()});
+    await sleep(300);
+    const chk = await dbGet(sid + '/p/' + pid);
+    if (!chk || chk.claimedBy !== uid) throw new Error('taken');
+    msg = '';
+  } catch (e) { msg = e.message === 'taken' ? 'Sorry, someone just claimed that name. Please pick another.' : 'Could not save. Please try again.'; }
+  pending = null; await load(true);
+}
+
+async function performDraw(meId){
+  if (!myKeys) throw new Error('locked');
+  const raw = await dbGet(sid + '/p') || {};
+  const list = Object.entries(raw).map(([id, v]) => Object.assign({id}, v));
+  const m = list.find(p => p.id === meId);
+  if (m.drewAt) { const g = m.giftee || (m.enc && await openPick(myKeys, m.enc)); if (g) myPick = g; return list.find(p => p.id === g); }
+  const tags = {}; for (const c of list) tags[c.id] = await tagFor(myKeys, c.id);
+  const isTaken = p => !!(p.taken || p.takenBy);
+  const asg = await dbGet(sid + '/info/assign') || {}, reserved = new Set(Object.values(asg));
+  const take = async c => {                        /* mark a name as drawn with the blind tag, then verify we won it */
+    const cur = await dbGet(sid + '/p/' + c.id);
+    if (cur && (cur.taken || cur.takenBy)) return false;
+    await dbPatch(sid + '/p/' + c.id, {taken: tags[c.id]});
+    await sleep(300);
+    const chk = await dbGet(sid + '/p/' + c.id);
+    return !!(chk && chk.taken === tags[c.id]);
+  };
+  let picked = list.find(p => p.id !== m.id && p.taken === tags[p.id]);   /* resume if a previous attempt was interrupted */
+  if (!picked && asg[m.id]) {
+    const c = list.find(p => p.id === asg[m.id]);
+    if (!c || c.id === m.id) throw new Error('empty');
+    if (!(await take(c))) throw new Error('conflict');
+    picked = c;
+  } else if (!picked) {
+    const givers = list.filter(p => !p.drewAt && !asg[p.id] && p.id !== m.id);
+    const pool = list.filter(p => p.id !== m.id && !isTaken(p) && !reserved.has(p.id)).filter(c => {
+      const rr = list.filter(p => !isTaken(p) && !reserved.has(p.id) && p.id !== c.id);
+      return !(givers.length === 1 && rr.length === 1 && givers[0].id === rr[0].id);
+    }).sort(() => Math.random() - .5);
+    for (const c of pool) { if (await take(c)) { picked = c; break; } }
+  }
+  if (!picked) throw new Error('empty');
+  const ec = await dbGet(sid + '/info/escrow');
+  const done = {enc: await sealPick(myKeys, picked.id), drewAt: Date.now()};
+  if (ec && ec.pub) done.encA = await sealForAdmin(ec, picked.id);   /* lets the creator open it on the exchange date */
+  await dbPatch(sid + '/p/' + m.id, done);
+  myPick = picked.id;
+  return picked;
+}
+
+const DRAW_QUOTES = [
+  "Keep your friends close, and your enemies closer.",
+  "Lord, kahit sino, huwag lang siya.",
+  "Walang personalan, bunutan lang.",
+  "May the bunot be with you."
+];
+const HALLOWEEN_QUOTES = [
+  "Who dares to draw from the cauldron?",
+  "The spirits have chosen...",
+  "Something wicked this way comes.",
+  "Trick or treat... your giftee awaits.",
+  "Boo! Let's see who you got."
+];
+function drawQuote(){ const q = themeName() === 'halloween' ? HALLOWEEN_QUOTES : DRAW_QUOTES; return q[Math.floor(Math.random() * q.length)]; }
+async function draw(){
+  const me = parts().find(p => p.claimedBy === uid);
+  if (!me || me.drewAt) return;
+  if (!myKeys) { msg = 'Enter your password first.'; return render(); }
+  busy = true; msg = '';
+  const dur = 5000 + Math.random() * 5000;           /* 5 to 10 seconds */
+  const roll = drumRoll(dur);                          /* started inside the click, so audio is allowed */
+  const names = parts().filter(p => p.id !== me.id).map(p => p.name);
+  root.innerHTML = '<div class="card center"><div class="shake">' + giftSvg(72) + '</div><p class="mut" style="margin:8px 0 0">' + esc(drawQuote()) + '</p><div class="big spin" id="shuf">...</div><div class="bar"><i id="prog" style="width:0"></i></div></div>';
+  let err = null, pick = null;
+  const work = performDraw(me.id).then(r => { pick = r; }).catch(e => { err = e; });
+  const t0 = Date.now(), el = () => Date.now() - t0;
+  let last = '';
+  const tick = () => { let n; do { n = names[Math.floor(Math.random() * names.length)]; } while (names.length > 1 && n === last); last = n; const s = $('#shuf'); if (s) s.textContent = n || '...'; };
+  const prog = setInterval(() => { const p = $('#prog'); if (p) p.style.width = Math.min(100, el() / dur * 100) + '%'; }, 80);
+  const SLOW = [120, 160, 220, 300, 400, 520], slowTotal = SLOW.reduce((a, b) => a + b, 0);   /* the spin slows down near the end */
+  while (el() < dur - slowTotal && !err) { tick(); await sleep(80); }
+  for (const ms of SLOW) { if (err) break; tick(); await sleep(ms); }
+  await work;                                          /* wait for the real pick if the network is slow */
+  clearInterval(prog);
+  if (err) { roll.stop(); msg = /^(empty|conflict)$/.test(err.message) ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.'; }
+  else if (pick) {
+    const s = $('#shuf'), pb = $('#prog');
+    if (s) { s.textContent = pick.name; s.classList.remove('spin'); }   /* the last name shown IS the drawn name */
+    if (pb) pb.style.width = '100%';
+    await sleep(1100);
+  }
+  busy = false; await load(true);
+}
+
+async function setPassword(){
+  const me = parts().find(p => p.claimedBy === uid); if (!me || pwBusy) return;
+  const a = ($('#pw1') && $('#pw1').value) || '', c = ($('#pw2') && $('#pw2').value) || '';
+  if (a.length < 6) { msg = 'Your password must be at least 6 characters.'; return render(); }
+  if (a !== c) { msg = 'The two passwords do not match.'; return render(); }
+  pwBusy = true; msg = 'Locking your pick...'; render();
+  try {
+    if (await dbGet(sid + '/p/' + me.id + '/pw')) { msg = 'A password is already set for this name. Enter it to continue.'; }
+    else {
+      const salt = b64(crypto.getRandomValues(new Uint8Array(16))), k = await deriveKeys(a, salt);
+      await dbPatch(sid + '/p/' + me.id, {pw: {s: salt, v: k.ver}});
+      myKeys = k; msg = '';
+    }
+  } catch (e) { msg = e.message === 'nocrypto' ? 'Your browser cannot lock picks here. Open this page over https in a recent browser.' : 'Could not save your password. Please try again.'; }
+  if ($('#pw1')) { $('#pw1').value = ''; $('#pw2').value = ''; }
+  pwBusy = false; await load(true);
+}
+async function unlockPick(){
+  const me = parts().find(p => p.claimedBy === uid); if (!me || !me.pw || pwBusy) return;
+  const pw = ($('#upw') && $('#upw').value) || ''; if (!pw) { msg = 'Enter your password.'; return render(); }
+  pwBusy = true; msg = 'Checking...'; render();
+  try {
+    const k = await deriveKeys(pw, me.pw.s);
+    if (k.ver !== me.pw.v) msg = 'That password is not correct.';
+    else { myKeys = k; msg = ''; if (me.enc) { const g = await openPick(k, me.enc); if (g) myPick = g; else msg = 'Could not open your pick.'; } }
+  } catch (e) { msg = 'Could not check your password. Please try again.'; }
+  if ($('#upw')) $('#upw').value = '';
+  pwBusy = false; render();
+}
+async function adminReveal(){
+  const p = parts().find(x => x.id === askPw); if (!p || !p.pw || !p.enc || pwBusy) return;
+  const pw = ($('#apw') && $('#apw').value) || ''; if (!pw) { msg = 'Enter their password.'; return render(); }
+  pwBusy = true; msg = 'Checking...'; render();
+  try {
+    const k = await deriveKeys(pw, p.pw.s);
+    if (k.ver !== p.pw.v) msg = 'That password is not correct.';
+    else { const g = await openPick(k, p.enc); if (g) { revealed[p.id] = g; askPw = null; msg = ''; } else msg = 'Could not open this pick.'; }
+  } catch (e) { msg = 'Could not check the password. Please try again.'; }
+  if ($('#apw')) $('#apw').value = '';
+  pwBusy = false; render();
+}
+
+async function adminShowAll(){
+  if (!escrow() || pwBusy) return;
+  if (!isRevealDay()) { msg = 'All picks can be shown from ' + fmtDate(dayOf()) + '.'; return render(); }
+  pwBusy = true; msg = 'Opening...'; render();
+  try {
+    const k = await openAdminKey();
+    if (!k) msg = 'Could not open the picks. Use the admin link you created this draw with.';
+    else { adminKey = k; allPicks = {}; await refreshAll(); msg = ''; }
+  } catch (e) { msg = 'Could not open the picks. Please try again.'; }
+  pwBusy = false; render();
+}
+function adminHideAll(){ adminKey = null; allPicks = null; msg = ''; render(); }
+
+async function release(pid){
+  try {
+    const cur = await dbGet(sid + '/p/' + pid);
+    if (!cur || cur.drewAt) msg = 'This person has already drawn, so the name cannot be released.';
+    else { await dbPatch(sid + '/p/' + pid, {claimedBy: null, claimedName: null, claimedAt: null, pw: null}); msg = ''; }
+  } catch (e) { msg = 'Could not release the name. Please try again.'; }
+  await load(true);
+}
+
+async function saveInfo(){
+  const g = v => (($(v) && $(v).value) || '').trim();
+  const date = g('#ed').slice(0, 60);
+  if (escrow() && (!ISO.test(date) || date < dayOf())) { msg = 'The gift exchange date can only be moved later, not earlier.'; return render(); }
+  try {
+    await dbPatch(sid + '/info', {giftTheme: g('#et').slice(0, 80), budget: g('#eb').slice(0, 40), date});
+    msg = 'Details saved.';
+  } catch (e) { msg = 'Could not save the details. Please try again.'; }
+  await load(true);
+  setTimeout(() => { if (msg === 'Details saved.') { msg = ''; render(); } }, 2000);
+}
+
+async function addName(){
+  const v = ($('#addn').value || '').trim(); if (!v) return;
+  if (parts().some(p => p.name.toLowerCase() === v.toLowerCase())) { msg = 'That name is already on the list.'; return render(); }
+  const n = parts().reduce((m, p) => Math.max(m, parseInt(p.id.slice(1)) || 0), 0) + 1;
+  try { await dbPut(sid + '/p/p' + n, {name: v}); $('#addn').value = ''; msg = ''; } catch (e) { msg = 'Could not add the name. Please try again.'; }
+  await load(true);
+}
+
+async function deleteDraw(){
+  try {
+    await dbDel(sid);
+    try { await callRaw('DELETE', uPath('draws/' + sid)); } catch(e){}
+    let mine = []; try { mine = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
+    ls.set(mineKey(), JSON.stringify(mine.filter(m => m.sid !== sid)));
+    confirmDel = false; location.href = baseUrl(); return;
+  } catch (e) { msg = 'Could not delete the draw. Please try again.'; }
+  confirmDel = false; render();
+}
+
+async function addWish(){
+  const me = parts().find(p => p.claimedBy === uid); if (!me) return;
+  const t = ($('#wt').value || '').trim().slice(0, 120);
+  if (!t) { msg = 'Please describe the gift idea first.'; return render(); }
+  if (wishItems(me).length >= 20) { msg = 'Your wishlist is full (20 items). Remove one to add another.'; return render(); }
+  const id = 'w' + Date.now().toString(36) + rnd(3);
+  try { await dbPut(sid + '/p/' + me.id + '/wishlist/' + id, {t, u: safeUrl($('#wu').value), i: wishImg || null, at: Date.now()}); $('#wt').value = ''; $('#wu').value = ''; wishImg = ''; msg = ''; }
+  catch (e) { msg = 'Could not save. Please try again.'; }
+  await load(true);
+}
+async function delWish(id){
+  const me = parts().find(p => p.claimedBy === uid); if (!me) return;
+  try { await dbDel(sid + '/p/' + me.id + '/wishlist/' + id); msg = ''; } catch (e) { msg = 'Could not remove the item. Please try again.'; }
+  await load(true);
+}
+
+function copy(id){
+  const el = document.getElementById(id); if (!el) return;
+  el.select();
+  (navigator.clipboard ? navigator.clipboard.writeText(el.value) : Promise.reject()).catch(() => { try { document.execCommand('copy'); } catch(e){} });
+  msg = 'Copied!'; render(); setTimeout(() => { msg = ''; render(); }, 1500);
+}
+
+root.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, v = b.dataset.v;
+  if (a === 'tab') { tab = v; msg = ''; render(); }
+  else if (a === 'skull') { if (skullOpen) closeSkull(); else { skullOpen = true; msg = ''; render(); } }
+  else if (a === 'skunlock') unlockSkull();
+  else if (a === 'skclose') closeSkull();
+  else if (a === 'asgadd') addAssign();
+  else if (a === 'asgdel') delAssign(v);
+  else if (a === 'asgclear') clearAssign();
+  else if (a === 'loopadd') { const i = loopSel.indexOf(v); if (i >= 0) loopSel.splice(i, 1); else loopSel.push(v); msg = ''; render(); }
+  else if (a === 'loopclose') { loopClose = v === '1'; render(); }
+  else if (a === 'loopclear') { loopSel = []; msg = ''; render(); }
+  else if (a === 'loopmake') makeLoop();
+  else if (a === 'signin') signIn();
+  else if (a === 'signout') setDemoUser(null);
+  else if (a === 'create') createSession();
+  else if (a === 'pick') { pending = v; render(); }
+  else if (a === 'unpick') { pending = null; render(); }
+  else if (a === 'claim') claim();
+  else if (a === 'draw') draw();
+  else if (a === 'eye') { const pp = parts().find(x => x.id === v); if (pp && pp.giftee) shown[v] = !shown[v]; else if (revealed[v]) delete revealed[v]; else askPw = askPw === v ? null : v; msg = ''; render(); }
+  else if (a === 'setpw') setPassword();
+  else if (a === 'unlock') unlockPick();
+  else if (a === 'areveal') adminReveal();
+  else if (a === 'acancel') { askPw = null; render(); }
+  else if (a === 'xshow') adminShowAll();
+  else if (a === 'xhide') adminHideAll();
+  else if (a === 'release') release(v);
+  else if (a === 'add') addName();
+  else if (a === 'saveinfo') saveInfo();
+  else if (a === 'subadd') addSub(v);
+  else if (a === 'subdel') delSub(v);
+  else if (a === 'subshuffle') shuffleSub();
+  else if (a === 'copy') copy(v);
+  else if (a === 'wadd') addWish();
+  else if (a === 'wdel') delWish(v);
+  else if (a === 'delask') { confirmDel = true; render(); }
+  else if (a === 'delno') { confirmDel = false; render(); }
+  else if (a === 'delyes') deleteDraw();
+  else if (a === 'theme') { newTheme = v; render(); }
+  else if (a === 'csend') sendChat(v);
+  else if (a === 'zoom') { lightbox = b.src; render(); }
+  else if (a === 'closelb') { lightbox = ''; render(); }
+  else if (a === 'wimgx') { wishImg = ''; render(); }
+  else if (a === 'cimgx') { chatImg[v] = ''; render(); }
+  else if (a === 'hidepick') { hidePick = !hidePick; ls.set(hideKey(), hidePick ? '1' : '0'); render(); }
+});
+
+root.addEventListener('change', async e => {
+  const t = e.target, f = t.files && t.files[0]; if (!f || !/^(wf|cf-[gr])$/.test(t.id)) return;
+  try {
+    const d = await compressImage(f, 720);
+    if (t.id === 'wf') wishImg = d; else chatImg[t.id.slice(3)] = d;
+    msg = '';
+  } catch (er) { msg = er.message === 'big' ? 'That photo is too large. Try a smaller one.' : 'Please choose an image file.'; }
+  render();
+});
+
+root.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return; const id = e.target.id;
+  if (/^cm[gr]$/.test(id)) { e.preventDefault(); sendChat(id.slice(2)); }
+  else if (id === 'pw1' || id === 'pw2') { e.preventDefault(); setPassword(); }
+  else if (id === 'upw') { e.preventDefault(); unlockPick(); }
+  else if (id === 'apw') { e.preventDefault(); adminReveal(); }
+  else if (id === 'skp') { e.preventDefault(); unlockSkull(); }
+});
+
+/* ---------- load + poll ---------- */
+async function load(force){
+  if (!CONFIGURED || !user || !sid) return;
+  try {
+    const d = await dbGet(sid);
+    if (!d || !d.info) { notFound = true; loaded = true; return render(); }
+    notFound = false;
+    const j = JSON.stringify(d);
+    if (!force && j === lastJson && loaded) return;
+    lastJson = j; ses = d; loaded = true;
+    isAdmin = !!key && (await sha(key)) === d.info.adminHash;
+    rememberJoin();
+    if (adminKey) { if (isAdmin && isRevealDay()) await refreshAll(); else { adminKey = null; allPicks = null; } }
+    const ae = document.activeElement;
+    if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); renderNotif(); return; }
+    render();
+  } catch (e) { if (!loaded) { msg = 'Cannot reach the database. Check the databaseURL, Rules, and your connection.'; loaded = true; ses = null; notFound = true; render(); } }
+}
+
+function boot(){
+  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; joinedDraws = []; newTheme = 'forest';
+  hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = ''; clearTimeout(subTimer); subTimer = 0; clearInterval(subIv); subIv = 0; subShow = false; subPick = '';
+  myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false; adminKey = null; allPicks = null; skullOpen = false; skullOk = false; loopSel = []; loopClose = true;
+  render();
+  if (user && sid) load(true); else if (user) loadHome();
+}
+
+/* ---------- DEMO: sample draw, fake accounts, demo bar ---------- */
+const DEMO_SID = 'sampledraw', DEMO_KEY = 'demoadminkey0001';
+const DEMO_USERS = [['demo-host', 'Host (draw creator)'], ['demo-ann', 'Ann'], ['demo-bo', 'Bo'], ['demo-cy', 'Cy'], ['demo-di', 'Di'], ['demo-ed', 'Ed'], ['demo-flo', 'Flo']];
+async function seedDemo(){
+  const db = loadDB();
+  if (db.bunutan && db.bunutan[DEMO_SID]) return;
+  const ec = await makeEscrow(DEMO_KEY, DEMO_SID), createdAt = Date.now(), p = {};
+  ['Ann', 'Bo', 'Cy', 'Di', 'Ed', 'Flo'].forEach((n, i) => { p['p' + (i + 1)] = {name: n}; });
+  await callRaw('PUT', 'bunutan/' + DEMO_SID, {info: {title: 'Sample Christmas Draw', date: todayStr(), budget: 'PHP 500', giftTheme: 'Something useful', subthemes: {s1: 'Something warm', s2: 'Something for the desk', s3: 'Smells nice'}, createdAt, adminHash: await sha(DEMO_KEY), owner: 'demo-host', theme: 'forest', escrow: ec}, p});
+  await callRaw('PUT', 'bunutan_users/demo-host/draws/' + DEMO_SID, {title: 'Sample Christmas Draw', key: DEMO_KEY, createdAt});
+}
+function setDemoUser(id){
+  const d = DEMO_USERS.find(x => x[0] === id);
+  user = d ? {uid: d[0], displayName: d[1], email: null, photoURL: null} : null; uid = user ? user.uid : null;
+  ls.set('bunutan_demo_user', id || ''); authReady = true; boot(); demoBar();
+}
+function demoBar(){
+  let el = document.getElementById('demobar');
+  if (!el) { el = document.createElement('div'); el.id = 'demobar'; document.body.appendChild(el); el.addEventListener('click', demoClick); }
+  const admin = !!key, cur = uid;
+  el.innerHTML = '<b>DEMO</b> &nbsp;local only, nothing is sent anywhere. The sample draw has 6 names (Ann, Bo, Cy, Di, Ed, Flo) and its exchange date is today, so "Show all picks" works. Admin password for the skull: Bunutan.' +
+    '<div class="r"><span>Sign in as:</span>' + DEMO_USERS.map(u => '<button data-u="' + u[0] + '" class="' + (cur === u[0] ? 'on' : '') + '">' + esc(u[1]) + '</button>').join('') + '</div>' +
+    '<div class="r"><span>View:</span><button data-go="admin" class="' + (admin ? 'on' : '') + '">Admin link</button><button data-go="part" class="' + (!admin && sid ? 'on' : '') + '">Participant link</button><button data-go="home">All draws</button><button data-go="reset" class="warn">Reset demo</button></div>';
+}
+function demoClick(e){
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.u) return setDemoUser(b.dataset.u);
+  const g = b.dataset.go;
+  if (g === 'admin') location.hash = 's=' + DEMO_SID + '&k=' + DEMO_KEY;
+  else if (g === 'part') location.hash = 's=' + DEMO_SID;
+  else if (g === 'home') location.hash = '';
+  else if (g === 'reset') {
+    if (!confirm('Reset the demo? This wipes the sample draw and every pick.')) return;
+    try { Object.keys(localStorage).filter(k => k.indexOf('bunutan_') === 0).forEach(k => localStorage.removeItem(k)); } catch(er){}
+    location.hash = 's=' + DEMO_SID + '&k=' + DEMO_KEY; location.reload();
+  }
+}
+(async () => {
+  await seedDemo();
+  if (!location.hash) location.hash = 's=' + DEMO_SID + '&k=' + DEMO_KEY;
+  window.addEventListener('hashchange', () => { boot(); demoBar(); });
+  setInterval(() => { if (user && sid && !busy && !document.hidden && (!document.activeElement?.matches?.('input,textarea,select') || /^cm[gr]$/.test(document.activeElement.id))) load(false); }, 4000);
+  const saved = ls.get('bunutan_demo_user');
+  setDemoUser(saved === null || saved === undefined ? 'demo-host' : saved);
+})();
+</script>
+</body>
+</html>

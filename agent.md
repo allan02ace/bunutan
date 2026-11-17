@@ -40,6 +40,7 @@ bunutan/{sid}/
              drewAt, wishlist{}, giftee /* legacy plaintext, old draws only */ }
   chat/{pid}/{mid}: { from:'giver'|'giftee', t, i, at }
 bunutan_users/{uid}/draws/{sid}: { title, key, createdAt }   // creator's own list
+bunutan_users/{uid}/joined/{sid}: { title, name, joinedAt }   // draws where the person holds a name (no pick, no key); written by rememberJoin() when they claim, or on first open if they claimed earlier
 ```
 
 Admin = whoever has the `k` value in the URL hash (`#s=<sid>&k=<key>`); `sha(k)` must equal `info.adminHash`. Participants use `#s=<sid>`.
@@ -74,7 +75,7 @@ Implementation notes:
 
 ### Access
 - A skull icon button (`SKULL`, outline SVG, same style as `LOCK`/`EYE`) is the last item of the admin tab row in `viewTabs()`. `viewTabs()` is only rendered for the admin, so participants never see it.
-- Tapping it toggles `skullOpen`. The panel (`viewSkull()`) renders under the tabs on both admin tabs.
+- Tapping it toggles `skullOpen`. The panel (`viewSkull()`) renders under the tabs on both admin tabs. Its visible title is "Debugger" (shown only after unlocking); the locked screen has no title and there is no intro paragraph, so nothing on screen says "assigned".
 - The panel is locked until the password **`Bunutan`** (case-sensitive) is entered. The check is `await sha(input) === SKULL_HASH`, where `SKULL_HASH = 'e98ef513dc73f745f7df16c5488405b45d210c532d2239e7da6c916e2c9cbc91'` (SHA-256 of `Bunutan`). This is only a UI gate, not security; do not describe it as encryption.
 - Unlocked state is `skullOk`, in memory only. Reset `skullOpen`, `skullOk`, `loopSel` and `loopClose` in `boot()`, and on "Lock and close" or when the skull is toggled closed. Enter in the password field (`id="skp"`) submits.
 
@@ -131,3 +132,7 @@ Roughly top to bottom: config and helpers, state, DB helpers, drum-roll audio, p
 ## demo.html (testing copy)
 
 `demo.html` is `index.html` with Firebase removed. `callRaw` is replaced by a Firebase-like tree stored in `localStorage` (`bunutan_demo_db`), and sign-in is replaced by a demo bar with fake accounts (Host, Ann, Bo, Cy, Di, Ed, Flo). It seeds one draw (`sampledraw`, admin key `demoadminkey0001`, 6 names, exchange date = today so "Show all picks" works). The skull password is `Bunutan`. After changing `index.html`, rebuild `demo.html` from it rather than editing the two by hand, and never deploy `demo.html`.
+
+## Home list
+
+`loadHome` shows two lists: draws the person created (`draws`, opens with the admin key) and "Draws you joined" (`joined`, opens the participant link). Joined entries whose draw no longer exists (`info/title` is null) are dropped on load. Only the draw title and the claimed name are stored, never the pick.

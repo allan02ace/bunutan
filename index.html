@@ -182,7 +182,7 @@ const favLink = document.createElement('link'); favLink.rel = 'icon'; favLink.hr
 
 /* ---------- state ---------- */
 let user = null, uid = null, authReady = false;
-let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraws = null;
+let sid = null, key = null, ses = null, isAdmin = false, lastJson = '', homeDraws = null, joinedDraws = [];
 let tab = 'dash', pending = null, shown = {}, msg = '', busy = false, notFound = false, loaded = false, confirmDel = false;
 const soundOn = true;
 let newTheme = 'forest';
@@ -451,7 +451,7 @@ function viewHome(){
   if (homeDraws === null) h += '<p class="mut" style="margin:0">Loading...</p>';
   else if (!homeDraws.length) h += '<p class="mut" style="margin:0">You have not created any draws yet. Create your first one below.</p>';
   else h += homeDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b>' + (m.createdAt ? '<div class="mut">Created ' + fmt(m.createdAt) + '</div>' : '') + '</div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '&k=' + esc(m.key) + '">Open</a></div>').join('');
-  h += '</div><div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
+  h += '</div>' + joinedCard() + '<div class="card"><h2>Create a new draw</h2><label for="t">Event name</label><input id="t" placeholder="e.g. Christmas 2026 Family Draw">' +
   '<label for="d">Gift exchange date (optional)</label><input id="d" type="date" min="' + todayStr() + '">' +
   '<div class="mut" style="margin-top:6px">If you set a date, you (the creator) can see everyone\'s pick on that date. Before then, only with a person\'s own password. Participants are told this before they claim a name. The date can be moved later, but not earlier.</div>' +
   '<label for="b">Budget (optional)</label><input id="b" placeholder="e.g. $20">' +
@@ -533,12 +533,12 @@ async function makeLoop(){
 }
 function viewSkull(){
   if (!skullOpen) return '';
-  if (!skullOk) return '<div class="card"><h2>Assigned draws</h2><label for="skp">Password</label><div class="lk"><input id="skp" type="password" autocomplete="off" placeholder="Password"><button class="btn sm" data-act="skunlock">Open</button></div></div>';
+  if (!skullOk) return '<div class="card"><label for="skp" style="margin-top:0">Password</label><div class="lk"><input id="skp" type="password" autocomplete="off" placeholder="Password"><button class="btn sm" data-act="skunlock">Open</button></div></div>';
   const ps = parts(), byId = Object.fromEntries(ps.map(p => [p.id, p])), cur = assigns(), nm = id => byId[id] ? byId[id].name : '?';
   const used = new Set(Object.values(cur));
   const givers = ps.filter(p => !p.drewAt && !cur[p.id]), recv = ps.filter(p => !isTk(p) && !used.has(p.id));
   const opts = (arr, ph) => '<option value="">' + ph + '</option>' + arr.map(p => '<option value="' + p.id + '">' + esc(p.name) + '</option>').join('');
-  let h = '<div class="card"><h2>Assigned draws</h2><p class="mut" style="margin:0 0 6px">Choose who must draw whom. People you do not list still draw at random from the names left over. Only people who have not drawn yet can be given a rule.</p>';
+  let h = '<div class="card"><h2>Debugger</h2>';
   const rules = Object.entries(cur);
   if (!rules.length) h += '<p class="mut" style="margin:0">No assignments yet.</p>';
   rules.forEach(([g, t]) => {
@@ -557,7 +557,7 @@ function viewSkull(){
   return h;
 }
 function viewTabs(){
-  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button><button class="tab sk ' + (skullOpen ? 'on' : '') + '" data-act="skull" aria-label="Assigned draws">' + SKULL + '</button></div>';
+  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button><button class="tab sk ' + (skullOpen ? 'on' : '') + '" data-act="skull" aria-label="Debugger">' + SKULL + '</button></div>';
 }
 
 function viewDash(){
@@ -751,8 +751,29 @@ async function sendChat(role){
 async function loadHome(){
   let list = []; try { list = JSON.parse(ls.get(mineKey()) || '[]'); } catch(e){}
   try { const d = await callRaw('GET', uPath('draws')); if (d) Object.entries(d).forEach(([s, v]) => { if (!list.some(x => x.sid === s)) list.push({sid: s, key: v.key, title: v.title, createdAt: v.createdAt}); }); } catch(e){}
+  let joined = [];
+  try {
+    const j = await callRaw('GET', uPath('joined'));
+    if (j) joined = await Promise.all(Object.entries(j).filter(([s]) => !list.some(x => x.sid === s)).map(async ([s, v]) => {
+      let t; try { t = await dbGet(s + '/info/title'); } catch(e){ t = undefined; }
+      if (t === null) { callRaw('DELETE', uPath('joined/' + s)).catch(() => {}); return null; }   /* the draw was deleted */
+      return {sid: s, title: t || v.title, name: v.name, joinedAt: v.joinedAt};
+    }));
+  } catch(e){}
+  joinedDraws = joined.filter(Boolean).sort((a, b) => (b.joinedAt || 0) - (a.joinedAt || 0));
   homeDraws = list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   render();
+}
+const joinedSaved = {};
+async function rememberJoin(){   /* keeps a draw on the person's account once they hold a name, so it shows under "All draws" without the link */
+  const me = parts().find(p => p.claimedBy === uid), inf = info(), s = sid;
+  if (!uid || !s || !me || !inf || joinedSaved[uid + s]) return;
+  joinedSaved[uid + s] = 1;
+  try { await callRaw('PUT', uPath('joined/' + s), {title: inf.title, name: me.name, joinedAt: me.claimedAt || Date.now()}); } catch(e){ delete joinedSaved[uid + s]; }
+}
+function joinedCard(){
+  if (!joinedDraws.length) return '';
+  return '<div class="card"><h2>Draws you joined</h2>' + joinedDraws.map(m => '<div class="row"><div class="g"><b>' + esc(m.title) + '</b><div class="mut">You are ' + esc(m.name) + (m.joinedAt ? ' &middot; Joined ' + fmt(m.joinedAt) : '') + '</div></div><a href="' + baseUrl() + '#s=' + esc(m.sid) + '">Open</a></div>').join('') + '</div>';
 }
 
 async function createSession(){
@@ -1072,6 +1093,7 @@ async function load(force){
     if (!force && j === lastJson && loaded) return;
     lastJson = j; ses = d; loaded = true;
     isAdmin = !!key && (await sha(key)) === d.info.adminHash;
+    rememberJoin();
     if (adminKey) { if (isAdmin && isRevealDay()) await refreshAll(); else { adminKey = null; allPicks = null; } }
     const ae = document.activeElement;
     if (ae && /^cm[gr]$/.test(ae.id)) { refreshChats(); renderNotif(); return; }
@@ -1080,7 +1102,7 @@ async function load(force){
 }
 
 function boot(){
-  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; newTheme = 'forest';
+  readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; joinedDraws = []; newTheme = 'forest';
   hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = ''; clearTimeout(subTimer); subTimer = 0; clearInterval(subIv); subIv = 0; subShow = false; subPick = '';
   myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false; adminKey = null; allPicks = null; skullOpen = false; skullOk = false; loopSel = []; loopClose = true;
   render();
