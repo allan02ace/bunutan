@@ -33,6 +33,11 @@ header .mut{margin-top:6px;letter-spacing:.08em;text-transform:uppercase;font-si
 .tabs{display:flex;gap:8px;margin-bottom:16px}
 .tab{flex:1;padding:13px 8px;border:1px solid var(--line);background:transparent;color:var(--mut);font:700 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;border-radius:2px;cursor:pointer}
 .tab.on{background:var(--fill-bg);color:var(--fill-ink);border-color:var(--fill-bg)}
+.tab.sk{flex:none;width:52px;padding:0;display:flex;align-items:center;justify-content:center}
+select{width:100%;padding:12px 13px;border-radius:2px;border:1px solid rgba(255,255,255,.2);background:var(--field);color:var(--ink);font:inherit}
+select:focus{outline:none;border-color:rgba(255,255,255,.65)}
+select option{background:#fff;color:#111}
+.asg-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
 button.btn{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:2px;padding:15px 28px;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:background .15s}
 button.btn:hover{background:rgba(255,255,255,.12)}
 button.btn.fill{background:var(--fill-bg);border-color:var(--fill-bg);color:var(--fill-ink)}
@@ -164,6 +169,7 @@ const ls = { get(k){ try { return localStorage.getItem(k); } catch(e){ return nu
 const EYE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYEOFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18 18 0 0 1 5.1-5.9M9.9 5.1A10 10 0 0 1 12 5c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 const LOCK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const SKULL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 2.8 1.4 4.6 3 5.8V19a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3.2c1.6-1.2 3-3 3-5.8a8 8 0 0 0-8-8z"/><circle cx="9" cy="11" r="1.6"/><circle cx="15" cy="11" r="1.6"/><path d="M10 20v-2.5M14 20v-2.5M12 14.5l-1 2h2z"/></svg>';
 const GLOGO = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 const THEMES = {
   forest: {name: 'Forest', bar: '#1b3a2f', tile: '#1b3a2f', line: '#d7c27f'},
@@ -185,6 +191,7 @@ let subShow = false, subPick = '', subTimer = 0, subIv = 0, subRolling = false;
 let hidePick = false, wishImg = '', chatImg = {g: '', r: ''}, lightbox = '';
 let myKeys = null, myPick = null, askPw = null, revealed = {}, pwBusy = false;   /* password lock: kept in memory only */
 let adminKey = null, allPicks = null;   /* exchange-date reveal: kept in memory only */
+let skullOpen = false, skullOk = false, loopSel = [], loopClose = true;   /* assigned-draws panel: kept in memory only */
 const parts = () => Object.entries((ses && ses.p) || {}).map(([id, v]) => Object.assign({id}, v)).sort((a, b) => (parseInt(a.id.slice(1)) || 0) - (parseInt(b.id.slice(1)) || 0));
 const info = () => ses && ses.info;
 const myName = () => (user && (user.displayName || user.email)) || 'Google user';
@@ -204,7 +211,7 @@ const uPath = p => 'bunutan_users/' + uid + '/' + p;
 const mineKey = () => 'bunutan_mine_' + uid;
 
 function readHash(){ const q = new URLSearchParams(location.hash.slice(1)); sid = q.get('s'); key = q.get('k'); }
-function keepInputs(){ const o = {}; root.querySelectorAll('input,textarea').forEach(e => { if (e.id) o[e.id] = e.value; }); return o; }
+function keepInputs(){ const o = {}; root.querySelectorAll('input,textarea,select').forEach(e => { if (e.id) o[e.id] = e.value; }); return o; }
 function restoreInputs(o){ for (const k in o) { const e = document.getElementById(k); if (e) e.value = o[k]; } }
 
 /* ---------- drum roll (Web Audio, no files needed) ---------- */
@@ -417,7 +424,7 @@ function render(){
   else if (!sid) h = viewHome();
   else if (notFound) h = '<div class="card center">' + giftSvg(48) + '<h2>Draw not found</h2><p class="mut">Check the link, or ask the person who created the draw.</p><p><a href="' + baseUrl() + '">Create a new draw</a></p></div>';
   else if (!loaded) h = '<p class="mut center" style="margin-top:80px">Loading...</p>';
-  else h = viewHeader() + (isAdmin ? viewTabs() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
+  else h = viewHeader() + (isAdmin ? viewTabs() + viewSkull() + (tab === 'dash' ? viewDash() : viewMe()) : viewMe());
   root.innerHTML = nav() + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') + h + (lightbox ? '<div class="lb" data-act="closelb"><img src="' + lightbox + '" alt=""></div>' : '');
   restoreInputs(keep);
   renderNotif();
@@ -460,8 +467,97 @@ function viewHeader(){
   const i = info(), bits = [fmtDate(i.date), i.giftTheme ? 'Gift theme: ' + i.giftTheme : '', i.budget ? 'Budget: ' + i.budget : ''].filter(Boolean).map(esc).join(' &middot; ');
   return '<header><div><h1>' + esc(i.title) + '</h1>' + (bits ? '<div class="mut">' + bits + '</div>' : '') + '</div></header>';
 }
+/* ---------- assigned draws (admin only, behind the skull) ---------- */
+const SKULL_HASH = 'e98ef513dc73f745f7df16c5488405b45d210c532d2239e7da6c916e2c9cbc91';   /* SHA-256 of the panel password; a UI gate only, not security */
+const assigns = () => (info() && info().assign) || {};
+const isTk = p => !!(p.taken || p.takenBy);
+function assignProblem(map){
+  const ps = parts(), byId = Object.fromEntries(ps.map(p => [p.id, p])), cur = assigns(), nm = id => byId[id] ? byId[id].name : '?';
+  const seen = {};
+  for (const [g, t] of Object.entries(map)) {
+    if (!byId[g] || !byId[t]) return 'One of those names is no longer in the draw.';
+    if (g === t) return nm(g) + ' cannot draw themselves.';
+    if (seen[t]) return nm(t) + ' can only be assigned to one person.';
+    seen[t] = g;
+    if (cur[g] !== t) {
+      if (byId[g].drewAt) return nm(g) + ' has already drawn.';
+      if (isTk(byId[t])) return nm(t) + ' has already been drawn by someone.';
+    }
+  }
+  const G = ps.filter(p => !p.drewAt && !map[p.id]), R = ps.filter(p => !isTk(p) && !seen[p.id]);
+  if (G.length === 1 && R.length === 1 && G[0].id === R[0].id) return 'That would leave ' + nm(G[0].id) + ' with only themselves to draw.';
+  return '';
+}
+async function saveAssign(map){
+  const pr = assignProblem(map);
+  if (pr) { msg = pr; render(); return false; }
+  try {
+    if (Object.keys(map).length) await dbPut(sid + '/info/assign', map); else await dbDel(sid + '/info/assign');
+    msg = ''; await load(true); return true;
+  } catch (e) { msg = 'Could not save. Please try again.'; render(); return false; }
+}
+async function unlockSkull(){
+  const e = $('#skp'), v = e ? e.value : '';
+  if (e) e.value = '';
+  if ((await sha(v)) === SKULL_HASH) { skullOk = true; msg = ''; } else msg = 'Wrong password.';
+  render();
+}
+function closeSkull(){ skullOpen = false; skullOk = false; loopSel = []; loopClose = true; msg = ''; render(); }
+async function addAssign(){
+  const g = ($('#asg') || {}).value, t = ($('#ast') || {}).value;
+  if (!g || !t) { msg = 'Choose a giver and who they will draw.'; return render(); }
+  const map = Object.assign({}, assigns()); map[g] = t;
+  if (await saveAssign(map)) { const a = $('#asg'), b = $('#ast'); if (a) a.value = ''; if (b) b.value = ''; }
+}
+async function delAssign(g){
+  const map = Object.assign({}, assigns()), p = parts().find(x => x.id === g);
+  if (!map[g] || (p && p.drewAt)) return;
+  delete map[g]; await saveAssign(map);
+}
+async function clearAssign(){
+  const byId = Object.fromEntries(parts().map(p => [p.id, p])), map = {};
+  for (const [g, t] of Object.entries(assigns())) if (byId[g] && byId[g].drewAt) map[g] = t;
+  await saveAssign(map);
+}
+async function makeLoop(){
+  const names = loopSel.slice(), n = names.length, cur = assigns(), byId = Object.fromEntries(parts().map(p => [p.id, p]));
+  if (n < 2) { msg = 'Tap at least two names, in order.'; return render(); }
+  const map = Object.assign({}, cur);
+  for (let i = 0; i < n; i++) {
+    const t = i < n - 1 ? names[i + 1] : (loopClose ? names[0] : null);
+    if (!t) continue;
+    if (cur[names[i]] && cur[names[i]] !== t) { msg = (byId[names[i]] ? byId[names[i]].name : '?') + ' already has an assignment. Remove it first.'; return render(); }
+    map[names[i]] = t;
+  }
+  if (await saveAssign(map)) { loopSel = []; render(); }
+}
+function viewSkull(){
+  if (!skullOpen) return '';
+  if (!skullOk) return '<div class="card"><h2>Assigned draws</h2><label for="skp">Password</label><div class="lk"><input id="skp" type="password" autocomplete="off" placeholder="Password"><button class="btn sm" data-act="skunlock">Open</button></div></div>';
+  const ps = parts(), byId = Object.fromEntries(ps.map(p => [p.id, p])), cur = assigns(), nm = id => byId[id] ? byId[id].name : '?';
+  const used = new Set(Object.values(cur));
+  const givers = ps.filter(p => !p.drewAt && !cur[p.id]), recv = ps.filter(p => !isTk(p) && !used.has(p.id));
+  const opts = (arr, ph) => '<option value="">' + ph + '</option>' + arr.map(p => '<option value="' + p.id + '">' + esc(p.name) + '</option>').join('');
+  let h = '<div class="card"><h2>Assigned draws</h2><p class="mut" style="margin:0 0 6px">Choose who must draw whom. People you do not list still draw at random from the names left over. Only people who have not drawn yet can be given a rule.</p>';
+  const rules = Object.entries(cur);
+  if (!rules.length) h += '<p class="mut" style="margin:0">No assignments yet.</p>';
+  rules.forEach(([g, t]) => {
+    const done = !!(byId[g] && byId[g].drewAt);
+    h += '<div class="row"><div class="g"><b>' + esc(nm(g)) + '</b> &rarr; ' + esc(nm(t)) + '</div>' + (done ? '<span class="mut">already drawn</span>' : '<button class="btn ghost sm" data-act="asgdel" data-v="' + g + '">Remove</button>') + '</div>';
+  });
+  h += '</div><div class="card"><h2>Add an assignment</h2><label for="asg">Giver</label><select id="asg">' + opts(givers, 'Choose giver...') + '</select><label for="ast">Will draw</label><select id="ast">' + opts(recv, 'Choose giftee...') + '</select><p style="margin:14px 0 0"><button class="btn fill sm" data-act="asgadd">Add assignment</button></p></div>';
+  const names = loopSel.map(nm).map(esc);
+  if (loopClose && names.length >= 2) names.push(names[0]);
+  h += '<div class="card"><h2>Loop or chain</h2><p class="mut" style="margin:0 0 8px">Tap names in order. Each one draws the next. With the loop on, the last draws the first.</p><div class="asg-chips">' +
+    ps.map(p => { const i = loopSel.indexOf(p.id); return '<button class="btn ' + (i >= 0 ? 'fill' : 'ghost') + ' sm" data-act="loopadd" data-v="' + p.id + '">' + (i >= 0 ? (i + 1) + '. ' : '') + esc(p.name) + '</button>'; }).join('') + '</div>' +
+    '<div class="mut" style="margin:0 0 10px">' + (names.length ? names.join(' &rarr; ') : 'Nothing selected yet.') + '</div>' +
+    '<div class="mut" style="margin:0 0 6px">Close the loop?</div><div class="asg-chips"><button class="btn ' + (loopClose ? 'fill' : 'ghost') + ' sm" data-act="loopclose" data-v="1">Yes</button><button class="btn ' + (loopClose ? 'ghost' : 'fill') + ' sm" data-act="loopclose" data-v="0">No</button></div>' +
+    '<button class="btn fill sm" data-act="loopmake">Create loop</button> <button class="btn ghost sm" data-act="loopclear">Clear selection</button></div>';
+  h += '<div class="card"><button class="btn ghost sm" data-act="asgclear">Remove all undrawn assignments</button> <button class="btn ghost sm" data-act="skclose">Lock and close</button></div>';
+  return h;
+}
 function viewTabs(){
-  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button></div>';
+  return '<div class="tabs"><button class="tab ' + (tab === 'dash' ? 'on' : '') + '" data-act="tab" data-v="dash">Admin dashboard</button><button class="tab ' + (tab === 'me' ? 'on' : '') + '" data-act="tab" data-v="me">My name &amp; wishlist</button><button class="tab sk ' + (skullOpen ? 'on' : '') + '" data-act="skull" aria-label="Assigned draws">' + SKULL + '</button></div>';
 }
 
 function viewDash(){
@@ -703,21 +799,28 @@ async function performDraw(meId){
   if (m.drewAt) { const g = m.giftee || (m.enc && await openPick(myKeys, m.enc)); if (g) myPick = g; return list.find(p => p.id === g); }
   const tags = {}; for (const c of list) tags[c.id] = await tagFor(myKeys, c.id);
   const isTaken = p => !!(p.taken || p.takenBy);
+  const asg = await dbGet(sid + '/info/assign') || {}, reserved = new Set(Object.values(asg));
+  const take = async c => {                        /* mark a name as drawn with the blind tag, then verify we won it */
+    const cur = await dbGet(sid + '/p/' + c.id);
+    if (cur && (cur.taken || cur.takenBy)) return false;
+    await dbPatch(sid + '/p/' + c.id, {taken: tags[c.id]});
+    await sleep(300);
+    const chk = await dbGet(sid + '/p/' + c.id);
+    return !!(chk && chk.taken === tags[c.id]);
+  };
   let picked = list.find(p => p.id !== m.id && p.taken === tags[p.id]);   /* resume if a previous attempt was interrupted */
-  if (!picked) {
-    const givers = list.filter(p => !p.drewAt && p.id !== m.id);
-    const pool = list.filter(p => p.id !== m.id && !isTaken(p)).filter(c => {
-      const rr = list.filter(p => !isTaken(p) && p.id !== c.id);
+  if (!picked && asg[m.id]) {
+    const c = list.find(p => p.id === asg[m.id]);
+    if (!c || c.id === m.id) throw new Error('empty');
+    if (!(await take(c))) throw new Error('conflict');
+    picked = c;
+  } else if (!picked) {
+    const givers = list.filter(p => !p.drewAt && !asg[p.id] && p.id !== m.id);
+    const pool = list.filter(p => p.id !== m.id && !isTaken(p) && !reserved.has(p.id)).filter(c => {
+      const rr = list.filter(p => !isTaken(p) && !reserved.has(p.id) && p.id !== c.id);
       return !(givers.length === 1 && rr.length === 1 && givers[0].id === rr[0].id);
     }).sort(() => Math.random() - .5);
-    for (const c of pool) {
-      const cur = await dbGet(sid + '/p/' + c.id);
-      if (cur && (cur.taken || cur.takenBy)) continue;
-      await dbPatch(sid + '/p/' + c.id, {taken: tags[c.id]});
-      await sleep(300);
-      const chk = await dbGet(sid + '/p/' + c.id);
-      if (chk && chk.taken === tags[c.id]) { picked = c; break; }
-    }
+    for (const c of pool) { if (await take(c)) { picked = c; break; } }
   }
   if (!picked) throw new Error('empty');
   const ec = await dbGet(sid + '/info/escrow');
@@ -762,7 +865,7 @@ async function draw(){
   for (const ms of SLOW) { if (err) break; tick(); await sleep(ms); }
   await work;                                          /* wait for the real pick if the network is slow */
   clearInterval(prog);
-  if (err) { roll.stop(); msg = err.message === 'empty' ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.'; }
+  if (err) { roll.stop(); msg = /^(empty|conflict)$/.test(err.message) ? 'No names are available to draw right now. Please tell the draw creator.' : 'Could not save your pick. Please try again.'; }
   else if (pick) {
     const s = $('#shuf'), pb = $('#prog');
     if (s) { s.textContent = pick.name; s.classList.remove('spin'); }   /* the last name shown IS the drawn name */
@@ -894,6 +997,16 @@ root.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, v = b.dataset.v;
   if (a === 'tab') { tab = v; msg = ''; render(); }
+  else if (a === 'skull') { if (skullOpen) closeSkull(); else { skullOpen = true; msg = ''; render(); } }
+  else if (a === 'skunlock') unlockSkull();
+  else if (a === 'skclose') closeSkull();
+  else if (a === 'asgadd') addAssign();
+  else if (a === 'asgdel') delAssign(v);
+  else if (a === 'asgclear') clearAssign();
+  else if (a === 'loopadd') { const i = loopSel.indexOf(v); if (i >= 0) loopSel.splice(i, 1); else loopSel.push(v); msg = ''; render(); }
+  else if (a === 'loopclose') { loopClose = v === '1'; render(); }
+  else if (a === 'loopclear') { loopSel = []; msg = ''; render(); }
+  else if (a === 'loopmake') makeLoop();
   else if (a === 'signin') signIn();
   else if (a === 'signout') signOut(auth);
   else if (a === 'create') createSession();
@@ -945,6 +1058,7 @@ root.addEventListener('keydown', e => {
   else if (id === 'pw1' || id === 'pw2') { e.preventDefault(); setPassword(); }
   else if (id === 'upw') { e.preventDefault(); unlockPick(); }
   else if (id === 'apw') { e.preventDefault(); adminReveal(); }
+  else if (id === 'skp') { e.preventDefault(); unlockSkull(); }
 });
 
 /* ---------- load + poll ---------- */
@@ -968,7 +1082,7 @@ async function load(force){
 function boot(){
   readHash(); ses = null; loaded = false; notFound = false; lastJson = ''; pending = null; shown = {}; tab = 'dash'; msg = ''; confirmDel = false; homeDraws = null; newTheme = 'forest';
   hidePick = !!(user && sid && ls.get(hideKey()) === '1'); wishImg = ''; chatImg = {g: '', r: ''}; lightbox = ''; clearTimeout(subTimer); subTimer = 0; clearInterval(subIv); subIv = 0; subShow = false; subPick = '';
-  myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false; adminKey = null; allPicks = null;
+  myKeys = null; myPick = null; askPw = null; revealed = {}; pwBusy = false; adminKey = null; allPicks = null; skullOpen = false; skullOk = false; loopSel = []; loopClose = true;
   render();
   if (user && sid) load(true); else if (user) loadHome();
 }
@@ -976,7 +1090,7 @@ function boot(){
 if (CONFIGURED) {
   onAuthStateChanged(auth, u => { user = u; uid = u ? u.uid : null; authReady = true; boot(); });
   window.addEventListener('hashchange', boot);
-  setInterval(() => { if (user && sid && !busy && !document.hidden && (!document.activeElement?.matches?.('input,textarea') || /^cm[gr]$/.test(document.activeElement.id))) load(false); }, 4000);
+  setInterval(() => { if (user && sid && !busy && !document.hidden && (!document.activeElement?.matches?.('input,textarea,select') || /^cm[gr]$/.test(document.activeElement.id))) load(false); }, 4000);
 } else render();
 </script>
 </body>
