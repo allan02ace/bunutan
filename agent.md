@@ -61,11 +61,11 @@ Admin = whoever has the `k` value in the URL hash (`#s=<sid>&k=<key>`); `sha(k)`
 
 Known limits: admin-set assigned draws (`info.assign`) are stored readable, so anyone who inspects the database of that draw can see them (accepted for friends' draws, chosen by the owner). The date check uses the device clock and anyone holding the admin link could bypass it with developer tools, and Rules allow any signed-in user to read and write a draw. The cryptography is what protects the picks, not the UI.
 
-## Assigned draws (admin only, behind the skull)
+## Assigned draws (admin only, behind the snowflake)
 
 Lets the draw creator decide that specific people must draw specific people (for example Person A draws Person C, Person B draws Person F), or arrange a loop or chain (A draws B, B draws C, C draws A). It is meant to be unnoticeable: participants see no notice, no extra screen and no different wording. Do **not** add any "set by the draw creator" disclaimer, the owner explicitly does not want one.
 
-**Status:** implemented in `index.html` (skull tab, `viewSkull`, `assignProblem`, `saveAssign`, loop/chain builder, and the `performDraw` changes). This section is still the spec; keep the code and this text in step.
+**Status:** implemented in `index.html` (snowflake tab, `viewSkull`, `assignProblem`, `saveAssign`, loop/chain builder, and the `performDraw` changes). This section is still the spec; keep the code and this text in step.
 
 Implementation notes:
 - `performDraw` has a local `take(c)` helper (blind tag, wait, verify). Assigned givers call it for their giftee and throw `conflict` if they lose it; `draw()` shows the neutral "No names are available" message for both `empty` and `conflict`.
@@ -74,10 +74,10 @@ Implementation notes:
 - Logic was checked with a Node simulation (3 to 9 people, random rules, random draw order): no one drew themselves, assigned people always got their giftee, and no draw dead-ended.
 
 ### Access
-- A skull icon button (`SKULL`, outline SVG, same style as `LOCK`/`EYE`) is the last item of the admin tab row in `viewTabs()`. `viewTabs()` is only rendered for the admin, so participants never see it.
-- Tapping it toggles `skullOpen`. The panel (`viewSkull()`) renders under the tabs on both admin tabs. Its visible title is "Debugger" (shown only after unlocking); the locked screen has no title and there is no intro paragraph, so nothing on screen says "assigned".
-- The panel is locked until the password **`Bunutan`** (case-sensitive) is entered. The check is `await sha(input) === SKULL_HASH`, where `SKULL_HASH = 'e98ef513dc73f745f7df16c5488405b45d210c532d2239e7da6c916e2c9cbc91'` (SHA-256 of `Bunutan`). This is only a UI gate, not security; do not describe it as encryption.
-- Unlocked state is `skullOk`, in memory only. Reset `skullOpen`, `skullOk`, `loopSel` and `loopClose` in `boot()`, and on "Lock and close" or when the skull is toggled closed. Enter in the password field (`id="skp"`) submits.
+- A snowflake icon button (`FLAKE`, outline SVG, same style as `LOCK`/`EYE`) is the last item of the admin tab row in `viewTabs()`. `viewTabs()` is only rendered for the admin, so participants never see it. (The code keeps the old `skull*` names: `skullOpen`, `skullOk`, `viewSkull`, `closeSkull`, `data-act="skull"`.)
+- **Step 1, silent taps:** 5 quick taps on the snowflake (each within 2.5 seconds of the last, counted by `flakeTaps`/`flakeT`) set `skullOpen`. Nothing on screen changes or hints at the taps before that, and there must never be any text, toast or animation that says 5 taps are needed. Tapping the snowflake while the panel is open closes it.
+- **Step 2, password:** after the 5th tap the panel shows only a blank password field (`id="skp"`): no placeholder, no title, no intro text, no button. It unlocks by itself the moment the typed text matches (`unlockSkull`, run from an `input` listener on every keystroke). There is no Unlock button, no Enter handling and no error message for wrong text. The password is **`Bunutan`** (case-sensitive). The check is `await sha(input) === SKULL_HASH`, where `SKULL_HASH = 'e98ef513dc73f745f7df16c5488405b45d210c532d2239e7da6c916e2c9cbc91'` (SHA-256 of `Bunutan`). This is only a UI gate, not security; do not describe it as encryption.
+- Only after a correct password (`skullOk`) does `viewSkull()` show the editor, whose title is "Debugger". `skullOpen`, `skullOk`, `loopSel`, `loopClose` and `flakeTaps` are in memory only and reset in `boot()`; `skullOk` is also reset by "Lock and close" and by closing the panel.
 
 ### Data
 - `info.assign = { [giverPid]: gifteePid }`, written with `dbPut(sid + '/info/assign', map)`, or `dbDel(sid + '/info/assign')` when the map is empty. Always write the whole map. `saveInfo` uses `dbPatch` on named fields only, so it does not touch `assign`; keep it that way. `createSession` does not write `assign`.
@@ -104,14 +104,14 @@ Implementation notes:
 - Everything else is unchanged: password lock (`enc`), blind `taken` tag, `encA` for the exchange-date view (still written for assigned givers too), resume of an interrupted draw.
 
 ### Tests to run after changing this
-- Admin sees the skull, participants do not and see no "assigned" wording anywhere.
-- Wrong password and lowercase `bunutan` are rejected; `Bunutan` opens the editor.
+- Admin sees the snowflake, participants do not and see no "assigned" wording anywhere. Fewer than 5 taps (or slow taps) show nothing at all; 5 quick taps show only the password field.
+- Wrong text and lowercase `bunutan` do nothing (no message); `Bunutan` opens the editor. Closing and re-opening the panel asks for the password again.
 - Validation cases above (self, duplicate giftee, drawn giver, only-themselves).
 - A real multi-person draw with a specific rule and a 3-way loop: assigned people get exactly their giftee, everyone else gets a valid draw, nobody draws themselves. Try Cy-first order (a leftover person who must not take the last free name).
 
 ## Code layout inside the script
 
-Roughly top to bottom: config and helpers, state, DB helpers, drum-roll audio, password lock and escrow crypto, image compression, notifications, auth, themes, views (`viewHome`, `viewDash`, `viewMe`, ...), chat, actions (`createSession`, `claim`, `performDraw`, `draw`, `setPassword`, `unlockPick`, `adminReveal`, `adminShowAll`, ...), the delegated click, change and keydown handlers, then `load` (polls every 4 seconds) and `boot`. The assigned-draws helpers (`assigns`, `assignProblem`, `saveAssign`, `viewSkull`, `unlockSkull`, `addAssign`, `makeLoop`, `delAssign`, `clearAssign`) sit just above `viewTabs`.
+Roughly top to bottom: config and helpers, state, DB helpers, drum-roll audio, password lock and escrow crypto, image compression, notifications, auth, themes, views (`viewHome`, `viewDash`, `viewMe`, ...), chat, actions (`createSession`, `claim`, `performDraw`, `draw`, `setPassword`, `unlockPick`, `adminReveal`, `adminShowAll`, ...), the delegated click, change and keydown handlers, then `load` (polls every 4 seconds) and `boot`. `viewHowto` sits just above `viewHeader`. The assigned-draws helpers (`assigns`, `assignProblem`, `saveAssign`, `viewSkull`, `unlockSkull`, `addAssign`, `makeLoop`, `delAssign`, `clearAssign`) sit just above `viewTabs`.
 
 ## Conventions
 
@@ -129,9 +129,20 @@ Roughly top to bottom: config and helpers, state, DB helpers, drum-roll audio, p
 - After edits: syntax-check the script and test any crypto change end to end (create with a date, claim, draw, reveal).
 - Changing the data model? Keep old draws working (see the legacy `giftee` handling) and update this file.
 
+## How-it-works card
+
+`viewHowto()` (just above `viewHeader`) is rendered right after `viewHeader()` in a draw view only (not on sign-in, home, or "draw not found").
+
+- **Wide screens (1260px and up):** pinned in the left margin (`position: fixed`, 250px wide, always open, no toggle). If `#app`'s `max-width` (680px) ever changes, update the `left` calc in the `@media (min-width:1260px)` rule.
+- **Narrower screens:** a collapsible bar in the page flow, closed by default. `howOpen` holds the open state and is reset in `boot()`.
+- **Content depends on the screen.** The Admin dashboard tab shows the "Admin guide" (share the link, watch progress, fix mistakes, and an "Exchange date" step only when `escrow()` exists). Every other view, including the admin's own "My name & wishlist" tab, shows the participant "How it works" steps: pick your name, set a password, draw, your giftee, chat and wishlist. The current step is highlighted and finished steps are ticked (derived from the person's own record: no claim, no `pw`, no `drewAt`, drawn). A privacy line at the bottom is built from `escrow()` / `seeNote()`; keep it truthful if the privacy model changes.
+- **Dismiss:** the x saves `bunutan_howto_off = '1'` in `localStorage` (per device). A "How it works" link then appears in the nav (`data-act="howon"`) to bring it back.
+- Never mention the snowflake, assigned draws or the debugger in this card. If the flow changes (new steps, renamed buttons), update the step text here and in `viewHowto()`.
+- `demo.html` carries the same change; it was applied to both files with the same patch.
+
 ## demo.html (testing copy)
 
-`demo.html` is `index.html` with Firebase removed. `callRaw` is replaced by a Firebase-like tree stored in `localStorage` (`bunutan_demo_db`), and sign-in is replaced by a demo bar with fake accounts (Host, Ann, Bo, Cy, Di, Ed, Flo). It seeds one draw (`sampledraw`, admin key `demoadminkey0001`, 6 names, exchange date = today so "Show all picks" works). The skull password is `Bunutan`. After changing `index.html`, rebuild `demo.html` from it rather than editing the two by hand, and never deploy `demo.html`.
+`demo.html` is `index.html` with Firebase removed. `callRaw` is replaced by a Firebase-like tree stored in `localStorage` (`bunutan_demo_db`), and sign-in is replaced by a demo bar with fake accounts (Host, Ann, Bo, Cy, Di, Ed, Flo). It seeds one draw (`sampledraw`, admin key `demoadminkey0001`, 6 names, exchange date = today so "Show all picks" works). The snowflake password is `Bunutan` (after 5 taps). After changing `index.html`, rebuild `demo.html` from it rather than editing the two by hand, and never deploy `demo.html`.
 
 ## Home list
 
